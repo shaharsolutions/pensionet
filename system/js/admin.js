@@ -1401,8 +1401,25 @@ async function renderWeeklyCalendar(allOrders) {
 
   const isMobile = window.innerWidth < 640;
   const cols = 7; // Always 7 columns for weekly view to allow horizontal scroll
-  const dayNames = isMobile ? ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"] : ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
-  const dayLabels = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+  
+  const tSun = window.i18n ? window.i18n.getTranslation('day_sun') : "ראשון";
+  const tMon = window.i18n ? window.i18n.getTranslation('day_mon') : "שני";
+  const tTue = window.i18n ? window.i18n.getTranslation('day_tue') : "שלישי";
+  const tWed = window.i18n ? window.i18n.getTranslation('day_wed') : "רביעי";
+  const tThu = window.i18n ? window.i18n.getTranslation('day_thu') : "חמישי";
+  const tFri = window.i18n ? window.i18n.getTranslation('day_fri') : "שישי";
+  const tSat = window.i18n ? window.i18n.getTranslation('day_sat') : "שבת";
+  
+  const tsSun = window.i18n ? window.i18n.getTranslation('day_sun_short') : "א׳";
+  const tsMon = window.i18n ? window.i18n.getTranslation('day_mon_short') : "ב׳";
+  const tsTue = window.i18n ? window.i18n.getTranslation('day_tue_short') : "ג׳";
+  const tsWed = window.i18n ? window.i18n.getTranslation('day_wed_short') : "ד׳";
+  const tsThu = window.i18n ? window.i18n.getTranslation('day_thu_short') : "ה׳";
+  const tsFri = window.i18n ? window.i18n.getTranslation('day_fri_short') : "ו׳";
+  const tsSat = window.i18n ? window.i18n.getTranslation('day_sat_short') : "ש׳";
+
+  const dayNames = isMobile ? [tSun, tMon, tTue, tWed, tThu, tFri, tSat] : [tsSun, tsMon, tsTue, tsWed, tsThu, tsFri, tsSat];
+  const dayLabels = [tSun, tMon, tTue, tWed, tThu, tFri, tSat];
 
   let calendarHTML = `<table class="calendar-table weekly-view ${isMobile ? 'mobile-scroll' : ''}"><thead><tr>`;
   dayLabels.forEach((day, idx) => {
@@ -1519,7 +1536,10 @@ async function renderWeeklyCalendar(allOrders) {
   const viewTitle = document.getElementById("viewTitle");
   if (viewTitle) {
     const options = { day: 'numeric', month: 'long' };
-    viewTitle.textContent = `תצוגה שבועית: ${weekStart.toLocaleDateString('he-IL', options)} - ${weekEnd.toLocaleDateString('he-IL', options)}`;
+    const loc = window.i18n ? window.i18n.getCurrentLang() : 'he';
+    const langLocale = loc === 'en' ? 'en-US' : 'he-IL';
+    const prefix = window.i18n ? window.i18n.getTranslation('weekly_view') : 'תצוגה שבועית:';
+    viewTitle.textContent = `${prefix} ${weekStart.toLocaleDateString(langLocale, options)} - ${weekEnd.toLocaleDateString(langLocale, options)}`;
   }
 }
 
@@ -1671,13 +1691,18 @@ function switchCalendarView(newView) {
   const nextBtn = document.getElementById("nextMonth");
 
   if (newView === "calendar") {
-    title.textContent = "לוח זמנים חודשי (נוכחות כלבים)";
-    if (prevBtn) prevBtn.innerHTML = "&lt; חודש קודם";
-    if (nextBtn) nextBtn.innerHTML = "חודש הבא &gt;";
+    const titleText = window.i18n ? window.i18n.getTranslation('ongoing_schedule_title') : "לוח זמנים חודשי (נוכחות כלבים)";
+    title.textContent = titleText;
+    const prevText = window.i18n ? window.i18n.getTranslation('ongoing_btn_prev_month') : "חודש קודם";
+    const nextText = window.i18n ? window.i18n.getTranslation('ongoing_btn_next_month') : "חודש הבא";
+    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevText}`;
+    if (nextBtn) nextBtn.innerHTML = `${nextText} &gt;`;
     renderMonthlyCalendar(window.allOrdersCache);
   } else if (newView === "weekly") {
-    if (prevBtn) prevBtn.innerHTML = "&lt; שבוע קודם";
-    if (nextBtn) nextBtn.innerHTML = "שבוע הבא &gt;";
+    const prevText = window.i18n ? window.i18n.getTranslation('btn_prev_week') : "שבוע קודם";
+    const nextText = window.i18n ? window.i18n.getTranslation('btn_next_week') : "שבוע הבא";
+    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevText}`;
+    if (nextBtn) nextBtn.innerHTML = `${nextText} &gt;`;
     renderWeeklyCalendar(window.allOrdersCache);
   } else if (newView === "dogs") {
     calendarContent.style.display = "none";
@@ -2089,7 +2114,8 @@ function renderMovementStats(data) {
   // Render Entering
   enteringCountEl.textContent = enteringDogs.length;
   if (enteringDogs.length === 0) {
-    enteringListEl.innerHTML = '<span style="color: #999;">אין כניסות היום</span>';
+    const noCheckinsTxt = window.i18n ? window.i18n.getTranslation('no_checkins_today') : 'אין כניסות היום';
+    enteringListEl.innerHTML = `<span style="color: #999;">${noCheckinsTxt}</span>`;
   } else {
     enteringListEl.innerHTML = enteringDogs.map(d => {
       const isChecked = !!d.is_arrived;
@@ -2109,7 +2135,8 @@ function renderMovementStats(data) {
   // Render Leaving
   leavingCountEl.textContent = leavingDogs.length;
   if (leavingDogs.length === 0) {
-    leavingListEl.innerHTML = '<span style="color: #999;">אין יציאות היום</span>';
+    const noCheckoutsTxt = window.i18n ? window.i18n.getTranslation('no_checkouts_today') : 'אין יציאות היום';
+    leavingListEl.innerHTML = `<span style="color: #999;">${noCheckoutsTxt}</span>`;
   } else {
     leavingListEl.innerHTML = leavingDogs.map(d => {
       const days = calculateDays(d.check_in, d.check_out);
@@ -3658,6 +3685,7 @@ async function loadSettings() {
     const showHolidaysDefault = (localStorage.getItem('pensionet_showHolidays') !== 'false');
     showHolidaysInput.checked = (pension.settings?.show_holidays ?? showHolidaysDefault);
   }
+
   updatePlanUI();
   updateModeUI();
   
@@ -6120,3 +6148,4 @@ window.togglePasswordVisibility = function(inputId, button) {
     button.title = 'הצג סיסמה';
   }
 };
+

@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/he.js"></script>
+    <script src="js/i18n.js?v=1"></script>
     <style>
       #login-overlay {
         position: fixed;
@@ -116,11 +117,11 @@
     <div id="mainContent">
       <header>
         <div class="header-actions">
-          <button class="header-btn" type="button" onclick="checkForAnnouncements(true)" title="מה חדש במערכת?">
+          <button class="header-btn" type="button" onclick="checkForAnnouncements(true)" title="מה חדש במערכת?" data-i18n="header_whats_new">
             <i class="fas fa-bullhorn" style="color: #f59e0b;"></i> מה חדש?
           </button>
-          <button class="header-btn logout-btn" type="button" onclick="logout()"><i class="fas fa-sign-out-alt"></i> יציאה</button>
-          <button class="header-btn" type="button" onclick="copyBookingLink(event)"><i class="fas fa-link"></i> קישור להזמנות</button>
+          <button class="header-btn logout-btn" type="button" onclick="logout()" data-i18n="header_logout"><i class="fas fa-sign-out-alt"></i> יציאה</button>
+          <button class="header-btn" type="button" onclick="copyBookingLink(event)" data-i18n="header_booking_link"><i class="fas fa-link"></i> קישור להזמנות</button>
         </div>
         <div class="header-center">
         <div class="logo-wrapper" style="margin-bottom: 5px;">
@@ -146,34 +147,34 @@
           </div>
         </div>
         <div class="header-actions">
-          <a href="admin_panel.html" id="adminPanelLink" class="header-btn" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;"><i class="fas fa-shield-alt"></i> פאנל ניהול</a>
-          <a href="insights.html" class="header-btn only-manager" data-feature="beta_access"><i class="fas fa-lightbulb"></i> מדריך תובנות</a>
-          <a href="growth.html" id="growthReportsLink" class="header-btn only-manager" data-feature="advanced_reports"><i class="fas fa-chart-line"></i> דוחות</a>
+          <a href="admin_panel.html" id="adminPanelLink" class="header-btn" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;" data-i18n="header_admin_panel"><i class="fas fa-shield-alt"></i> פאנל ניהול</a>
+          <a href="insights.html" class="header-btn only-manager" data-feature="beta_access" data-i18n="header_insights"><i class="fas fa-lightbulb"></i> מדריך תובנות</a>
+          <a href="growth.html" id="growthReportsLink" class="header-btn only-manager" data-feature="advanced_reports" data-i18n="header_reports"><i class="fas fa-chart-line"></i> דוחות</a>
         </div>
       </header>
 
       <div class="tabs-nav">
-        <button class="tab-btn active" onclick="switchTab('ongoing')" data-feature="ongoing_management">ניהול שוטף</button>
-        <button class="tab-btn" onclick="switchTab('history')" data-feature="history_tab">היסטוריית הזמנות</button>
-        <button class="tab-btn manager-only" onclick="switchTab('audit')" data-feature="audit_log">יומן פעולות</button>
-        <button class="tab-btn manager-only" onclick="switchTab('clients')" data-feature="clients_basic"><i class="fas fa-users"></i> לקוחות</button>
-        <button class="tab-btn" onclick="switchTab('settings')"><i class="fas fa-sliders-h"></i> הגדרות</button>
+        <button class="tab-btn active" onclick="switchTab('ongoing')" data-feature="ongoing_management" data-i18n="tab_ongoing">ניהול שוטף</button>
+        <button class="tab-btn" onclick="switchTab('history')" data-feature="history_tab" data-i18n="tab_history">היסטוריית הזמנות</button>
+        <button class="tab-btn manager-only" onclick="switchTab('audit')" data-feature="audit_log" data-i18n="tab_audit">יומן פעולות</button>
+        <button class="tab-btn manager-only" onclick="switchTab('clients')" data-feature="clients_basic" data-i18n="tab_clients"><i class="fas fa-users"></i> לקוחות</button>
+        <button class="tab-btn" onclick="switchTab('settings')" data-i18n="tab_settings"><i class="fas fa-sliders-h"></i> הגדרות</button>
       </div>
 
       <div id="tab-ongoing" class="tab-content active">
         <!-- New Stats Section -->
         <div class="container" style="margin-bottom: 20px;">
-          <h3 style="text-align: center; margin-bottom: 15px;"><i class="fas fa-exchange-alt" style="color: #6366f1;"></i> תנועות להיום</h3>
+          <h3 style="text-align: center; margin-bottom: 15px;" data-i18n="ongoing_movements"><i class="fas fa-exchange-alt" style="color: #6366f1;"></i> תנועות להיום</h3>
           <div class="movements-container">
             <div class="movement-box entering">
-              <h4 style="color: #4caf50; margin-bottom: 10px;"><i class="fas fa-sign-in-alt"></i> נכנסים היום</h4>
+              <h4 style="color: #4caf50; margin-bottom: 10px;" data-i18n="ongoing_entering"><i class="fas fa-sign-in-alt"></i> נכנסים היום</h4>
               <div id="dogsEnteringCount" style="font-size: 28px; font-weight: bold; color: #2e7d32;">0</div>
               <div id="dogsEnteringList" style="margin-top: 10px; font-size: 14px; text-align: right; max-height: 150px; overflow-y: auto;">
                 <!-- List will be populated by JS -->
               </div>
             </div>
             <div class="movement-box leaving">
-              <h4 style="color: #f44336; margin-bottom: 10px;"><i class="fas fa-sign-out-alt"></i> יוצאים היום</h4>
+              <h4 style="color: #f44336; margin-bottom: 10px;" data-i18n="ongoing_leaving"><i class="fas fa-sign-out-alt"></i> יוצאים היום</h4>
               <div id="dogsLeavingCount" style="font-size: 28px; font-weight: bold; color: #c62828;">0</div>
               <div id="dogsLeavingList" style="margin-top: 10px; font-size: 14px; text-align: right; max-height: 150px; overflow-y: auto;">
                 <!-- List will be populated by JS -->
@@ -184,17 +185,18 @@
 
         <div id="monthlyCalendarContainer" class="container" data-feature="calendar_view">
           <div class="container-header-row">
-            <h3 id="viewTitle">לוח זמנים חודשי (נוכחות כלבים)</h3>
+            <h3 id="viewTitle" data-i18n="ongoing_schedule_title">לוח זמנים חודשי (נוכחות כלבים)</h3>
             <div id="calendarViewControls" style="display: flex; gap: 12px; align-items: center;">
               <div class="view-switch-group" style="display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px;">
-                <button id="viewBtn-calendar" class="view-switch-btn active" onclick="switchCalendarView('calendar')">חודשי</button>
-                <button id="viewBtn-weekly" class="view-switch-btn" onclick="switchCalendarView('weekly')">שבועי</button>
-                <button id="viewBtn-dogs" class="view-switch-btn" onclick="switchCalendarView('dogs')" data-feature="occupancy_view">נוכחות היום</button>
+                <button id="viewBtn-calendar" class="view-switch-btn active" onclick="switchCalendarView('calendar')" data-i18n="ongoing_btn_monthly">חודשי</button>
+                <button id="viewBtn-weekly" class="view-switch-btn" onclick="switchCalendarView('weekly')" data-i18n="ongoing_btn_weekly">שבועי</button>
+                <button id="viewBtn-dogs" class="view-switch-btn" onclick="switchCalendarView('dogs')" data-feature="occupancy_view" data-i18n="ongoing_btn_today">נוכחות היום</button>
               </div>
               <button
                 id="toggleCalendarCollapseBtn"
                 class="calendar-toggle-btn"
                 onclick="toggleCalendarCollapse(this)"
+                data-i18n="ongoing_btn_collapse"
               >
                 כווץ <i class="fas fa-chevron-up"></i>
               </button>
@@ -203,6 +205,7 @@
                 class="header-btn manager-only"
                 style="margin-right: 10px; background: #6366f1; color: white; border: none;"
                 onclick="openCustomEventModal()"
+                data-i18n="ongoing_btn_add_event"
               >
                 הוספת אירוע <i class="fas fa-plus"></i>
               </button>
@@ -219,23 +222,24 @@
                 class="header-btn"
                 style="position: static; margin-left: 10px"
                 onclick="changeMonth(-1)"
+                data-i18n="ongoing_btn_prev_month"
               >
                 &lt; חודש קודם
               </button>
               <div id="monthYearPicker" style="display: inline-flex; gap: 8px; align-items: center; background: #f1f5f9; padding: 4px 12px; border-radius: 12px; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.02); min-width: 200px; justify-content: center;">
                 <select id="calendarMonth" onchange="jumpToDate()" style="border: none; background: transparent; font-size: 18px; font-weight: 800; color: #1e293b; cursor: pointer; padding: 4px; outline: none; font-family: inherit; min-width: 95px;">
-                  <option value="0">ינואר</option>
-                  <option value="1">פברואר</option>
-                  <option value="2">מרץ</option>
-                  <option value="3">אפריל</option>
-                  <option value="4">מאי</option>
-                  <option value="5">יוני</option>
-                  <option value="6">יולי</option>
-                  <option value="7">אוגוסט</option>
-                  <option value="8">ספטמבר</option>
-                  <option value="9">אוקטובר</option>
-                  <option value="10">נובמבר</option>
-                  <option value="11">דצמבר</option>
+                  <option value="0" data-i18n="month_0">ינואר</option>
+                  <option value="1" data-i18n="month_1">פברואר</option>
+                  <option value="2" data-i18n="month_2">מרץ</option>
+                  <option value="3" data-i18n="month_3">אפריל</option>
+                  <option value="4" data-i18n="month_4">מאי</option>
+                  <option value="5" data-i18n="month_5">יוני</option>
+                  <option value="6" data-i18n="month_6">יולי</option>
+                  <option value="7" data-i18n="month_7">אוגוסט</option>
+                  <option value="8" data-i18n="month_8">ספטמבר</option>
+                  <option value="9" data-i18n="month_9">אוקטובר</option>
+                  <option value="10" data-i18n="month_10">נובמבר</option>
+                  <option value="11" data-i18n="month_11">דצמבר</option>
                 </select>
                 <select id="calendarYear" onchange="jumpToDate()" style="border: none; background: transparent; font-size: 18px; font-weight: 800; color: #1e293b; cursor: pointer; padding: 4px; outline: none; font-family: inherit;">
                 </select>
@@ -245,6 +249,7 @@
                 class="header-btn"
                 style="position: static; margin-right: 10px"
                 onclick="changeMonth(1)"
+                data-i18n="ongoing_btn_next_month"
               >
                 חודש הבא &gt;
               </button>
@@ -257,28 +262,28 @@
 
         <div class="container">
           <div class="table-header">
-            <h3 class="table-title"><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> הזמנות עתידיות</h3>
+            <h3 class="table-title" data-i18n="future_orders_title"><i class="fas fa-calendar-alt" style="color: var(--primary);"></i> הזמנות עתידיות</h3>
             <div class="table-filters">
               <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="futureSearchInput" placeholder="חיפוש חופשי (שם, טלפון, כלב)...">
+                <input type="text" id="futureSearchInput" placeholder="חיפוש חופשי (שם, טלפון, כלב)..." data-i18n="search_placeholder">
               </div>
               <div class="filter-group">
                 <i class="fas fa-filter"></i>
                 <select id="futureStatusFilter">
-                  <option value="all">כל הסטטוסים</option>
-                  <option value="ממתין">ממתין (חדש)</option>
-                  <option value="מאושר">מאושר</option>
-                  <option value="בוטל">בוטל</option>
+                  <option value="all" data-i18n="filter_all_statuses">כל הסטטוסים</option>
+                  <option value="ממתין" data-i18n="status_pending">ממתין (חדש)</option>
+                  <option value="מאושר" data-i18n="status_approved">מאושר</option>
+                  <option value="בוטל" data-i18n="status_canceled">בוטל</option>
                 </select>
               </div>
               <div class="filter-group">
                 <i class="fas fa-sort-amount-down"></i>
                 <select id="futureSortSelect">
-                  <option value="check_in_asc">כניסה (מהקרוב לרחוק)</option>
-                  <option value="check_in_desc">כניסה (מהרחוק לקרוב)</option>
-                  <option value="order_date_desc">תאריך הזמנה (חדש לישן)</option>
-                  <option value="dog_name">שם הכלב (א-ת)</option>
+                  <option value="check_in_asc" data-i18n="sort_checkin_asc">כניסה (מהקרוב לרחוק)</option>
+                  <option value="check_in_desc" data-i18n="sort_checkin_desc">כניסה (מהרחוק לקרוב)</option>
+                  <option value="order_date_desc" data-i18n="sort_order_date">תאריך הזמנה (חדש לישן)</option>
+                  <option value="dog_name" data-i18n="sort_dog_name">שם הכלב (א-ת)</option>
                 </select>
               </div>
             </div>
@@ -286,23 +291,23 @@
           <table id="futureOrdersTable">
             <thead>
               <tr>
-                <th>מועד הזמנה</th>
-                <th>שם הבעלים</th>
-                <th>טלפון</th>
-                <th data-feature="whatsapp_automation">אישור הזמנה</th>
-                <th class="wide-date-column">כניסה</th>
-                <th class="wide-date-column">יציאה</th>
-                <th>שם הכלב</th>
-                <th>גיל</th>
-                <th>גודל</th>
-                <th>מסורס / מעוקרת</th>
-                <th>הערות מיוחדות</th>
-                <th>תוספות</th>
-                <th>מחיר ליום</th>
-                <th>סה"כ לשהייה</th>
-                <th>סה"כ כולל תוספות</th>
-                <th>סטטוס</th>
-                <th class="manager-note-column">הערות מנהל</th>
+                <th data-i18n="col_order_date">מועד הזמנה</th>
+                <th data-i18n="col_owner_name">שם הבעלים</th>
+                <th data-i18n="col_phone">טלפון</th>
+                <th data-feature="whatsapp_automation" data-i18n="col_order_confirm">אישור הזמנה</th>
+                <th class="wide-date-column" data-i18n="col_checkin">כניסה</th>
+                <th class="wide-date-column" data-i18n="col_checkout">יציאה</th>
+                <th data-i18n="col_dog_name">שם הכלב</th>
+                <th data-i18n="col_age">גיל</th>
+                <th data-i18n="col_size">גודל</th>
+                <th data-i18n="col_neutered">מסורס / מעוקרת</th>
+                <th data-i18n="col_notes">הערות מיוחדות</th>
+                <th data-i18n="col_addons">תוספות</th>
+                <th data-i18n="col_daily_price">מחיר ליום</th>
+                <th data-i18n="col_total_stay">סה"כ לשהייה</th>
+                <th data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
+                <th data-i18n="col_status">סטטוס</th>
+                <th class="manager-note-column" data-i18n="col_admin_notes">הערות מנהל</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -313,11 +318,11 @@
       <div id="tab-history" class="tab-content">
         <div class="container" id="historyTableContainer">
           <div class="table-header">
-            <h3 class="table-title"><i class="fas fa-history" style="color: var(--primary);"></i> היסטוריית הזמנות</h3>
+            <h3 class="table-title" data-i18n="history_title"><i class="fas fa-history" style="color: var(--primary);"></i> היסטוריית הזמנות</h3>
             <div class="table-filters">
               <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="historySearchInput" placeholder="חיפוש בהיסטוריה (שם, טלפון, כלב)...">
+                <input type="text" id="historySearchInput" placeholder="חיפוש בהיסטוריה (שם, טלפון, כלב)..." data-i18n="history_search_placeholder">
               </div>
             </div>
           </div>
@@ -325,23 +330,23 @@
             <table id="pastOrdersTable">
               <thead>
                 <tr>
-                  <th>מועד הזמנה</th>
-                  <th>שם הבעלים</th>
-                  <th>טלפון</th>
-                <th data-feature="whatsapp_automation">אישור הזמנה</th>
-                  <th class="wide-date-column">כניסה</th>
-                  <th class="wide-date-column">יציאה</th>
-                  <th>שם הכלב</th>
-                  <th>גיל</th>
-                  <th>גודל</th>
-                  <th>מסורס / מעוקרת</th>
-                  <th>הערות מיוחדות</th>
-                  <th>תוספות</th>
-                  <th>מחיר ליום</th>
-                  <th>סה"כ לשהייה</th>
-                  <th>סה"כ כולל תוספות</th>
-                  <th>סטטוס</th>
-                  <th class="manager-note-column">הערות מנהל</th>
+                  <th data-i18n="col_order_date">מועד הזמנה</th>
+                  <th data-i18n="col_owner_name">שם הבעלים</th>
+                  <th data-i18n="col_phone">טלפון</th>
+                <th data-feature="whatsapp_automation" data-i18n="col_order_confirm">אישור הזמנה</th>
+                  <th class="wide-date-column" data-i18n="col_checkin">כניסה</th>
+                  <th class="wide-date-column" data-i18n="col_checkout">יציאה</th>
+                  <th data-i18n="col_dog_name">שם הכלב</th>
+                  <th data-i18n="col_age">גיל</th>
+                  <th data-i18n="col_size">גודל</th>
+                  <th data-i18n="col_neutered">מסורס / מעוקרת</th>
+                  <th data-i18n="col_notes">הערות מיוחדות</th>
+                  <th data-i18n="col_addons">תוספות</th>
+                  <th data-i18n="col_daily_price">מחיר ליום</th>
+                  <th data-i18n="col_total_stay">סה"כ לשהייה</th>
+                  <th data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
+                  <th data-i18n="col_status">סטטוס</th>
+                  <th class="manager-note-column" data-i18n="col_admin_notes">הערות מנהל</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -359,8 +364,8 @@
       <!-- Audit Tab -->
       <div id="tab-audit" class="tab-content">
         <div class="container">
-          <h3>יומן פעולות מערכת</h3>
-          <p style="color: #64748b; margin-bottom: 20px;">תיעוד בזמן אמת של כל הפעולות שבוצעו במערכת על ידי הצוות והמנהל</p>
+          <h3 data-i18n="audit_title">יומן פעולות מערכת</h3>
+          <p style="color: #64748b; margin-bottom: 20px;" data-i18n="audit_desc">תיעוד בזמן אמת של כל הפעולות שבוצעו במערכת על ידי הצוות והמנהל</p>
           <div id="auditLogsList" class="audit-logs-list">
               <!-- Logs will be loaded here -->
               <div style="padding: 40px; text-align: center; color: #94a3b8;">
@@ -375,15 +380,15 @@
         <div class="container" style="background: transparent; box-shadow: none; border: none; padding: 0;">
           <div id="clientsStatsContainer" class="movements-container style-clients-stats" style="margin-bottom: 20px;">
             <div class="movement-box" style="background: white;">
-              <h4 style="color: #6366f1; margin-bottom: 10px;"><i class="fas fa-users"></i> סה"כ לקוחות</h4>
+              <h4 style="color: #6366f1; margin-bottom: 10px;" data-i18n="clients_stats_total"><i class="fas fa-users"></i> סה"כ לקוחות</h4>
               <div id="statsTotalClients" style="font-size: 28px; font-weight: bold; color: #4338ca;">0</div>
             </div>
             <div class="movement-box" style="background: white;">
-              <h4 style="color: #10b981; margin-bottom: 10px;"><i class="fas fa-shopping-cart"></i> ממוצע הזמנות ללקוח</h4>
+              <h4 style="color: #10b981; margin-bottom: 10px;" data-i18n="clients_stats_avg"><i class="fas fa-shopping-cart"></i> ממוצע הזמנות ללקוח</h4>
               <div id="statsAvgOrdersPerClient" style="font-size: 28px; font-weight: bold; color: #047857;">0</div>
             </div>
             <div class="movement-box" style="background: white;">
-              <h4 style="color: #f59e0b; margin-bottom: 10px;"><i class="fas fa-paw"></i> סה"כ כלבים במערכת</h4>
+              <h4 style="color: #f59e0b; margin-bottom: 10px;" data-i18n="clients_stats_dogs"><i class="fas fa-paw"></i> סה"כ כלבים במערכת</h4>
               <div id="statsTotalDogs" style="font-size: 28px; font-weight: bold; color: #b45309;">0</div>
             </div>
           </div>
@@ -391,11 +396,11 @@
 
         <div class="container">
           <div class="table-header">
-            <h3 class="table-title"><i class="fas fa-user-friends" style="color: var(--primary);"></i> מאגר לקוחות</h3>
+            <h3 class="table-title" data-i18n="clients_title"><i class="fas fa-user-friends" style="color: var(--primary);"></i> מאגר לקוחות</h3>
             <div class="table-filters" style="display: flex; gap: 10px; align-items: center;">
               <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="clientsSearchInput" placeholder="חיפוש לפי שם, טלפון, שם כלב..." oninput="renderClientsTable()">
+                <input type="text" id="clientsSearchInput" placeholder="חיפוש לפי שם, טלפון, שם כלב..." oninput="renderClientsTable()" data-i18n="clients_search_placeholder">
               </div>
               <select id="clientsPriceFilter" onchange="renderClientsTable()" class="payment-input" style="width: auto; height: 38px; margin: 0;">
                 <option value="all">כל המחירים</option>
@@ -407,15 +412,15 @@
           <table id="clientsTable">
             <thead>
               <tr>
-                <th onclick="toggleClientsSort('name')" style="cursor:pointer;">שם הלקוח <i class="fas fa-sort"></i></th>
-                <th>טלפון</th>
-                <th onclick="toggleClientsSort('city')" style="cursor:pointer;">עיר מגורים <i class="fas fa-sort"></i></th>
-                <th>כלבים משויכים</th>
-                <th onclick="toggleClientsSort('totalOrders')" style="cursor:pointer;">סה"כ הזמנות <i class="fas fa-sort"></i></th>
-                <th onclick="toggleClientsSort('lastOrderDate')" style="cursor:pointer;">הזמנה אחרונה <i class="fas fa-sort"></i></th>
-                <th onclick="toggleClientsSort('totalRevenue')" style="cursor:pointer;">הכנסה מהלקוח <i class="fas fa-sort"></i></th>
-                <th onclick="toggleClientsSort('customPrice')" style="cursor:pointer;">מחיר ברירת מחדל <i class="fas fa-sort"></i></th>
-                <th>ניהול</th>
+                <th onclick="toggleClientsSort('name')" style="cursor:pointer;" data-i18n="clients_col_name">שם הלקוח <i class="fas fa-sort"></i></th>
+                <th data-i18n="clients_col_phone">טלפון</th>
+                <th onclick="toggleClientsSort('city')" style="cursor:pointer;" data-i18n="clients_col_city">עיר מגורים <i class="fas fa-sort"></i></th>
+                <th data-i18n="clients_col_associated_dogs">כלבים משויכים</th>
+                <th onclick="toggleClientsSort('totalOrders')" style="cursor:pointer;" data-i18n="clients_col_total_orders">סה"כ הזמנות <i class="fas fa-sort"></i></th>
+                <th onclick="toggleClientsSort('lastOrderDate')" style="cursor:pointer;" data-i18n="clients_col_last_order">הזמנה אחרונה <i class="fas fa-sort"></i></th>
+                <th onclick="toggleClientsSort('totalRevenue')" style="cursor:pointer;" data-i18n="clients_col_total_revenue">הכנסה מהלקוח <i class="fas fa-sort"></i></th>
+                <th onclick="toggleClientsSort('customPrice')" style="cursor:pointer;" data-i18n="clients_col_default_price">מחיר ברירת מחדל <i class="fas fa-sort"></i></th>
+                <th data-i18n="clients_col_manage">ניהול</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -430,12 +435,12 @@
           <div class="settings-card">
             <div class="settings-header">
               <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <h3 style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                <h3 style="display: flex; align-items: center; gap: 10px; margin: 0;" data-i18n="settings_title">
                   <i class="fas fa-sliders-h" style="color: #6366f1;"></i> הגדרות פנסיון
                 </h3>
                 <div id="settingsPlanBadgeContainer"></div>
               </div>
-              <p>צפה בפרטי העסק והגדרות המערכת</p>
+              <p data-i18n="settings_subtitle">צפה בפרטי העסק והגדרות המערכת</p>
             </div>
 
             <!-- Employee info banner - shown only for non-managers -->
@@ -466,21 +471,21 @@
                   <input type="file" id="avatar-upload-input" style="display: none;" accept="image/*" onchange="handleAvatarUpload(event)">
                 </div>
                 <div style="flex: 1;">
-                  <h4 style="margin: 0 0 4px; color: #1e293b; font-size: 18px; font-weight: 800;">הפרופיל האישי שלי</h4>
-                  <p style="font-size: 14px; color: #64748b; margin: 0;">ניהול הפרטים האישיים המזוהים איתך במערכת</p>
+                  <h4 style="margin: 0 0 4px; color: #1e293b; font-size: 18px; font-weight: 800;" data-i18n="settings_my_profile">הפרופיל האישי שלי</h4>
+                  <p style="font-size: 14px; color: #64748b; margin: 0;" data-i18n="settings_my_profile_desc">ניהול הפרטים האישיים המזוהים איתך במערכת</p>
                 </div>
               </div>
 
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                 <div class="form-group" style="margin: 0;">
-                  <label for="settings-my-full-name" style="color: #475569; font-weight: 700; margin-bottom: 8px; display: block; font-size: 13px;">
+                  <label for="settings-my-full-name" style="color: #475569; font-weight: 700; margin-bottom: 8px; display: block; font-size: 13px;" data-i18n="settings_display_name">
                     <i class="fas fa-id-badge" style="color: #6366f1; width: 16px;"></i> שם תצוגה:
                   </label>
                   <input type="text" id="settings-my-full-name" placeholder="איך תרצה שנקרא לך?" class="profile-input">
                 </div>
                 
                 <div class="form-group" style="margin: 0;">
-                  <label for="settings-my-email" style="color: #475569; font-weight: 700; margin-bottom: 8px; display: block; font-size: 13px;">
+                  <label for="settings-my-email" style="color: #475569; font-weight: 700; margin-bottom: 8px; display: block; font-size: 13px;" data-i18n="settings_email_readonly">
                     <i class="fas fa-envelope" style="color: #6366f1; width: 16px;"></i> כתובת אימייל (לקריאה בלבד):
                   </label>
                   <div style="position: relative;">
@@ -495,7 +500,7 @@
                 <button type="button" id="saveMyProfileBtn"
                         style="background: #6366f1; color: white; padding: 12px 28px; font-weight: 700; border: none; border-radius: 12px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2); cursor: pointer; font-family: inherit; font-size: 15px; display: flex; align-items: center; gap: 10px; transition: all 0.3s;"
                         onmouseover="this.style.background='#4f46e5'; this.style.transform='translateY(-2px)';"
-                        onmouseout="this.style.background='#6366f1'; this.style.transform='';">
+                        onmouseout="this.style.background='#6366f1'; this.style.transform='';" data-i18n="settings_update_profile">
                   <i class="fas fa-save"></i> עדכן פרופיל
                 </button>
               </div>
@@ -503,17 +508,17 @@
             
             <div class="settings-grid">
               <div class="settings-section" data-manager-section="business">
-                <h4><i class="fas fa-home" style="color: #6366f1;"></i> פרטי עסק</h4>
+                <h4 data-i18n="settings_business_details"><i class="fas fa-home" style="color: #6366f1;"></i> פרטי עסק</h4>
                 <div class="form-group">
-                  <label for="settings-business-name"><i class="fas fa-store"></i> שם הפנסיון / העסק:</label>
+                  <label for="settings-business-name" data-i18n="settings_business_name"><i class="fas fa-store"></i> שם הפנסיון / העסק:</label>
                   <input type="text" id="settings-business-name" placeholder="למשל: הפנסיון של שחר">
                 </div>
                 <div class="form-group">
-                  <label for="settings-full-name"><i class="fas fa-user"></i> שם מנהל המערכת:</label>
+                  <label for="settings-full-name" data-i18n="settings_admin_name"><i class="fas fa-user"></i> שם מנהל המערכת:</label>
                   <input type="text" id="settings-full-name" placeholder="השם המלא שלך">
                 </div>
                 <div class="form-group">
-                  <label for="settings-location"><i class="fas fa-map-marker-alt"></i> מיקום הפנסיון:</label>
+                  <label for="settings-location" data-i18n="settings_location"><i class="fas fa-map-marker-alt"></i> מיקום הפנסיון:</label>
                   <input type="text" id="settings-location" placeholder="למשל: תל אביב / מושב בשרון">
                 </div>
                 <div class="form-group" data-manager-only-field style="display:none;">
@@ -522,20 +527,28 @@
               </div>
 
               <div class="settings-section" data-manager-section="operational">
-                <h4><i class="fas fa-tools" style="color: #64748b;"></i> הגדרות תפעוליות</h4>
+                <h4 data-i18n="settings_operational"><i class="fas fa-tools" style="color: #64748b;"></i> הגדרות תפעוליות</h4>
                 <div class="form-group">
-                  <label for="settings-phone"><i class="fab fa-whatsapp"></i> טלפון לווטסאפ (לקוחות יחזרו אליו):</label>
+                  <label for="settings-phone" data-i18n="settings_whatsapp_phone"><i class="fab fa-whatsapp"></i> טלפון לווטסאפ (לקוחות יחזרו אליו):</label>
                   <input type="tel" id="settings-phone" placeholder="050-1234567">
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="settings-capacity"><i class="fas fa-dog"></i> קיבולת (כלבים):</label>
+                    <label for="settings-capacity" data-i18n="settings_capacity"><i class="fas fa-dog"></i> קיבולת (כלבים):</label>
                     <input type="number" id="settings-capacity" min="1" max="100">
                   </div>
                   <div class="form-group">
-                    <label for="settings-default-price"><i class="fas fa-shekel-sign"></i> מחיר ברירת מחדל ליום:</label>
+                    <label for="settings-default-price" data-i18n="settings_default_price"><i class="fas fa-shekel-sign"></i> מחיר ברירת מחדל ליום:</label>
                     <input type="number" id="settings-default-price" min="0">
                   </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                  <label for="settings-language" data-i18n="settings_language"><i class="fas fa-language" style="color: #6366f1;"></i> שפת מערכת (System Language):</label>
+                  <select id="settings-language" onchange="window.i18n.setLanguage(this.value)">
+                    <option value="he">עברית (Hebrew)</option>
+                    <option value="en">אנגלית (English)</option>
+                  </select>
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;" data-feature="holidays_visible">
@@ -635,7 +648,7 @@
             </div>
 
             <div class="settings-actions" style="display: flex; gap: 15px; justify-content: center;" id="settingsManagerActions">
-              <button id="saveSettingsBtn" class="save-settings-btn">
+              <button id="saveSettingsBtn" class="save-settings-btn" data-i18n="settings_save_all">
                 <i class="fas fa-check-circle"></i> שמור את כל השינויים
               </button>
               <button id="fillDemoDataBtn" class="save-settings-btn" style="background: #10b981; border-color: #059669;">
@@ -650,7 +663,7 @@
       </div>
 
       <div id="saveButtonContainer">
-        <button id="saveButton"><i class="fas fa-save"></i> שמור שינויים</button>
+        <button id="saveButton" data-i18n="save_changes"><i class="fas fa-save"></i> שמור שינויים</button>
       </div>
 
       <footer style="margin-top: 50px; padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -874,7 +887,7 @@
             <button type="button" onclick="closeEditClientModal()" style="flex: 1; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: white; color: #64748b; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
                     onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">ביטול</button>
             <button type="button" id="saveEditClientBtn" onclick="saveEditClient()" style="flex: 2; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
-                    onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                    onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" data-i18n="save_changes">
               <i class="fas fa-save"></i> שמור שינויים
             </button>
           </div>
