@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>פנסיון-נט | הגדרת חשבון</title>
+    <title>Pensionet | הגדרת חשבון</title>
     <link rel="icon" href="favicon.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -205,7 +205,7 @@
 </head>
 <body>
     <div class="setup-card">
-        <div class="logo">פנסיון-נט</div>
+        <div class="logo">Pensionet</div>
         <div class="subtitle">ברוכים הבאים! רק עוד כמה פרטים לסיום הגדרת הפנסיון</div>
 
         <div id="errorMessage" class="error-msg"></div>
@@ -266,8 +266,8 @@
             <span class="terms-close" onclick="closeTerms()">&times;</span>
             <h2 style="margin-top: 0; color: #1e293b; font-size: 1.5rem;">תנאי שימוש למנהלים</h2>
             <div class="terms-scrollarea">
-                <p><strong>תנאי שימוש – מערכת פנסיון-נט</strong></p>
-                <p><strong>1. כללי</strong><br> פנסיון-נט היא מערכת לניהול פנסיונים לכלבים. השימוש במערכת כפוף לתנאים המפורטים להלן.</p>
+                <p><strong>תנאי שימוש – מערכת Pensionet</strong></p>
+                <p><strong>1. כללי</strong><br> Pensionet היא מערכת לניהול פנסיונים לכלבים. השימוש במערכת כפוף לתנאים המפורטים להלן.</p>
                 <p><strong>2. הצהרת המשתמש</strong><br> בעת ההרשמה למערכת, המשתמש מצהיר כי הוא בעל פנסיון פעיל או מורשה לפעול מטעמו, והפרטים שמסר נכונים ומדויקים.</p>
                 <p><strong>3. אחריות</strong><br> המערכת מספקת כלי ניהול בלבד. המשתמש אחראי בלעדית לניהול ההזמנות, המחירים והעמידה בדרישות חוקיות.</p>
                 <p><strong>4. פרטיות</strong><br> המערכת שומרת על פרטיות המידע בהתאם למקובל. השימוש במידע נועד לשיפור השירות בלבד.</p>
@@ -385,7 +385,7 @@
                 }
 
                 // Set identification flags so the user doesn't see the login overlay immediately
-                localStorage.setItem('pensionNet_activeStaff', formData.full_name);
+                localStorage.setItem('pensionet_activeStaff', formData.full_name);
                 localStorage.setItem('pensionet_last_pin_verified', Date.now().toString());
                 
                 window.location.href = 'admin.html';

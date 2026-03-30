@@ -1,5 +1,5 @@
 /**
- * Pension-Net - Authentication Module
+ * Pensionet - Authentication Module
  * handles Supabase Auth
  */
 

@@ -1,10 +1,10 @@
 /**
- * Pension-Net - Configuration
+ * Pensionet - Configuration
  * קובץ קונפיגורציה מרכזי
  */
 
 const APP_CONFIG = {
-  APP_NAME: "Pension-Net",
+  APP_NAME: "Pensionet",
   VERSION: "1.0.0",
   MAX_CAPACITY: 10,
   DEFAULT_PRICE_PER_DAY: 130,

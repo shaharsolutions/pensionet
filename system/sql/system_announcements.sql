@@ -47,4 +47,4 @@ END $$;
 
 -- 5. Seed an initial announcement (optional, but good for testing)
 -- INSERT INTO public.system_announcements (content, is_active, created_by)
--- VALUES ('ברוכים הבאים למערכת פנסיון-נט המעודכנת! הוספנו אפשרות לניהול לקוחות וסטטיסטיקות מתקדמות.', true, 'shaharsolutions@gmail.com');
+-- VALUES ('ברוכים הבאים למערכת Pensionet המעודכנת! הוספנו אפשרות לניהול לקוחות וסטטיסטיקות מתקדמות.', true, 'shaharsolutions@gmail.com');

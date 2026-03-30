@@ -6,7 +6,7 @@ let ADMIN_PHONE = typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.ADMIN_PHONE : '
 let BUSINESS_NAME = 'פנסיון לכלבים';
 
 // Initialize Supabase
-const pensionNetSupabase = getSupabase();
+const pensionetSupabase = getSupabase();
 
 // State variables
 let currentStep = 0;
@@ -190,7 +190,7 @@ async function loadMonthlyCapacity() {
   
   try {
     const searchIds = (pensionStaffIds && pensionStaffIds.length > 0) ? pensionStaffIds : [PENSION_OWNER_ID];
-    const { data: orders, error } = await pensionNetSupabase
+    const { data: orders, error } = await pensionetSupabase
       .from('orders')
       .select('id, check_in, check_out')
       .eq('status', 'מאושר')

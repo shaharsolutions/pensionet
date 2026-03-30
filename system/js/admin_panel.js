@@ -1,5 +1,5 @@
 /**
- * Pension-Net - Admin Panel Module
+ * Pensionet - Admin Panel Module
  * פאנל ניהול מתקדם - גישה למנהל בלבד (shaharsolutions@gmail.com)
  */
 

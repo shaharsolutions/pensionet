@@ -48,7 +48,7 @@ serve(async (req) => {
     const htmlBody = `
       <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 20px;">
         <div style="background: linear-gradient(135deg, #6366f1, #7c3aed); padding: 30px; border-radius: 16px 16px 0 0; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">🐾 ליד חדש מפנסיון-נט!</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">🐾 ליד חדש מPensionet!</h1>
         </div>
         <div style="background: white; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
           <h2 style="color: #1e293b; margin-top: 0;">פרטי הליד:</h2>
@@ -85,7 +85,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Pension-Net <onboarding@resend.dev>",
+        from: "Pensionet <onboarding@resend.dev>",
         to: [RECIPIENT_EMAIL],
         subject: `🐾 ליד חדש: ${full_name} - ${pension_size}`,
         html: htmlBody,

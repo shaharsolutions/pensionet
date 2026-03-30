@@ -1,5 +1,5 @@
 /**
- * Pension-Net - Features & Plans Module
+ * Pensionet - Features & Plans Module
  * Handles feature flagging and plan restrictions based on Supabase resolution
  */
 

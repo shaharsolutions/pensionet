@@ -1,5 +1,5 @@
 /**
- * Pension-Net - Utility Functions
+ * Pensionet - Utility Functions
  * פונקציות עזר משותפות לכל המערכת
  */
 

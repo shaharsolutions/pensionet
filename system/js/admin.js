@@ -9,7 +9,7 @@ window.PensionDiagnostics = {
     console.log(entry);
   },
   getReport: function() {
-    let report = `=== PENSION-NET SYSTEM REPORT (${new Date().toLocaleString()}) ===\n\n`;
+    let report = `=== PENSIONET SYSTEM REPORT (${new Date().toLocaleString()}) ===\n\n`;
     report += `User Role: ${window.currentUserProfile?.role || 'None'}\n`;
     report += `User Full Name: ${window.currentUserProfile?.full_name || 'None'}\n`;
     report += `Admin Mode: ${window.isAdminMode}\n`;
@@ -49,7 +49,7 @@ const checkAuth = checkAuthStatus;
 
 async function logout() {
   localStorage.removeItem('pensionet_last_pin_verified');
-  localStorage.removeItem('pensionNet_activeStaff');
+  localStorage.removeItem('pensionet_activeStaff');
   window.lastPinVerificationTime = 0;
   window.isSessionVerified = false;
   window.isAdminMode = false;
@@ -75,7 +75,7 @@ function closeProfileOverlay() {
     if (!pinValid) {
       const activeSelect = document.getElementById('activeStaffSelect');
       if (activeSelect) activeSelect.value = 'צוות';
-      localStorage.setItem('pensionNet_activeStaff', 'צוות');
+      localStorage.setItem('pensionet_activeStaff', 'צוות');
       window.isSessionVerified = false;
       
       // Update UI to reflect 'צוות' permissions
@@ -195,7 +195,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       try {
         // Fetch impersonated user's profile
-        const { data: profile, error: profileError } = await pensionNetSupabase
+        const { data: profile, error: profileError } = await pensionetSupabase
           .from('profiles')
           .select('*')
           .eq('user_id', impersonateUserId)
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         // Fetch impersonated user's pension
         if (profile.pension_id) {
-          const { data: pensionData, error: pensionError } = await pensionNetSupabase
+          const { data: pensionData, error: pensionError } = await pensionetSupabase
             .from('pensions')
             .select('*')
             .eq('id', profile.pension_id);
@@ -220,12 +220,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             window.currentPension = pensionData[0];
             console.log('📂 Loaded impersonated pension:', window.currentPension);
           } else {
-            console.warn('Pension record not found or inaccessible for pension_id:', profile.pension_id);
-            // Minimal fallback for pension object so current app doesn't break
+            console.warn('Pension record not found or inaccessible for pension_id:', profile.pension_id, '. Falling back to profile data.');
+            // Better fallback: use data from the profile as it likely contains the owner's original settings
             window.currentPension = { 
                 id: profile.pension_id, 
                 name: profile.business_name || impersonateUserName || 'פנסיון',
-                max_capacity: 50
+                max_capacity: profile.max_capacity || 15, // Improved fallback from profile
+                phone: profile.phone || '',
+                location: profile.location || '',
+                default_price: profile.default_price || 130
             };
           }
         }
@@ -396,7 +399,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
 
       try {
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
           .from('profiles')
           .update({ full_name: newName })
           .eq('user_id', profile.user_id);
@@ -411,7 +414,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const activeSelect = document.getElementById('activeStaffSelect');
         if (activeSelect && activeSelect.value === profile.full_name) {
           // Re-select using new name
-          localStorage.setItem('pensionNet_activeStaff', newName);
+          localStorage.setItem('pensionet_activeStaff', newName);
           updateStaffSelectors();
           const freshSelect = document.getElementById('activeStaffSelect');
           if (freshSelect) freshSelect.value = newName;
@@ -456,7 +459,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 // Login is now handled by login.html
 
 
-const pensionNetSupabase = supabaseClient;
+const pensionetSupabase = supabaseClient;
 
 // Stop impersonation and go back to admin panel
 function stopImpersonationFromAdmin() {
@@ -733,7 +736,7 @@ async function markConfirmationSent(orderId) {
   
   // Update order status to 'מאושר' in database
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('orders')
       .update({ status: 'מאושר' })
       .eq('id', finalId);
@@ -758,7 +761,7 @@ async function resetConfirmationState(orderId) {
   
   // Update order status back to 'ממתין' in database
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('orders')
       .update({ status: 'ממתין' })
       .eq('id', finalId);
@@ -784,7 +787,7 @@ async function checkForAnnouncements(force = false) {
     
     try {
         // 1. Fetch latest active announcement
-        const { data: announcement, error } = await pensionNetSupabase
+        const { data: announcement, error } = await pensionetSupabase
             .from('system_announcements')
             .select('*')
             .eq('is_active', true)
@@ -799,7 +802,7 @@ async function checkForAnnouncements(force = false) {
         
         // 2. Check if user has seen this specific announcement
         const userId = window.currentUserSession.user.id;
-        const { data: profile } = await pensionNetSupabase
+        const { data: profile } = await pensionetSupabase
             .from('profiles')
             .select('last_seen_announcement_id')
             .eq('user_id', userId)
@@ -853,7 +856,7 @@ function showAnnouncementModal(announcement) {
             <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
                 <i class="fas fa-rocket" style="font-size: 28px;"></i>
             </div>
-            <h2 style="margin: 0; font-size: 24px; font-weight: 800;">מה חדש ב-Pension-Net?</h2>
+            <h2 style="margin: 0; font-size: 24px; font-weight: 800;">מה חדש ב-Pensionet?</h2>
             <p style="margin: 5px 0 0; opacity: 0.9; font-size: 14px;">עדכונים ושיפורים אחרונים למערכת</p>
         </div>
         <div style="padding: 30px;">
@@ -903,7 +906,7 @@ function showAnnouncementModal(announcement) {
         overlay.style.opacity = '0';
         setTimeout(() => overlay.remove(), 400);
         // Mark as seen anyway so it doesn't pop up again
-        pensionNetSupabase
+        pensionetSupabase
             .from('profiles')
             .update({ 
                 last_seen_announcement_id: announcement.id,
@@ -924,7 +927,7 @@ function showAnnouncementModal(announcement) {
         try {
             const promises = [
                 // 1. Mark as seen
-                pensionNetSupabase
+                pensionetSupabase
                     .from('profiles')
                     .update({ 
                         last_seen_announcement_id: announcement.id,
@@ -936,7 +939,7 @@ function showAnnouncementModal(announcement) {
             // 2. Save feedback if exists
             if (feedback) {
                 promises.push(
-                    pensionNetSupabase
+                    pensionetSupabase
                         .from('system_feedback')
                         .insert([{
                             user_id: userId,
@@ -1105,7 +1108,7 @@ window.jewishHolidaysCache = {};
 
 async function getJewishHolidays(year, month) {
   // Use pension-wide setting if available, otherwise default to true/localStorage for backward compatibility during transition
-  const showHolidays = window.currentPension?.settings?.show_holidays ?? (localStorage.getItem('pensionNet_showHolidays') !== 'false');
+  const showHolidays = window.currentPension?.settings?.show_holidays ?? (localStorage.getItem('pensionet_showHolidays') !== 'false');
   if (!showHolidays) return {};
   
   if (!year || isNaN(year) || isNaN(month)) return {};
@@ -2012,7 +2015,7 @@ async function toggleMovementChecked(type, orderId) {
   }
 
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('orders')
       .update(updateData)
       .eq('id', orderId);
@@ -2169,7 +2172,7 @@ async function loadData() {
 
     console.log("Fetching orders for staff IDs:", staffIds);
 
-    const { data, error } = await pensionNetSupabase
+    const { data, error } = await pensionetSupabase
       .from("orders")
       .select("id, dog_name, owner_name, check_in, check_out, status, created_at, phone, price_per_day, is_arrived, is_departed, admin_note, dog_photo, dog_breed, dog_age, neutered, addons")
       .in("user_id", staffIds) // Fetch orders for all pension members
@@ -2464,7 +2467,7 @@ function renderFutureOrdersTable() {
                 }];
                 
                 // Update in Supabase immediately for notes
-                const { error } = await pensionNetSupabase
+                const { error } = await pensionetSupabase
                   .from('orders')
                   .update({ admin_note: JSON.stringify(notes) + (order.admin_note?.includes('(DEMO_DATA)') ? ' (DEMO_DATA)' : '') })
                   .eq('id', orderId);
@@ -2584,7 +2587,7 @@ document
         }
 
         if (Object.keys(updateData).length > 0) {
-          const { error } = await pensionNetSupabase
+          const { error } = await pensionetSupabase
             .from("orders")
             .update(updateData)
             .eq("id", id);
@@ -2622,7 +2625,7 @@ document
 
       // --- שמירת שינויי נתוני לקוחות (מחיר ברירת מחדל) למסד הנתונים ---
       if (clientsDataUpdated) {
-        const { error: profileError } = await pensionNetSupabase
+        const { error: profileError } = await pensionetSupabase
           .from('profiles')
           .update({ clients_data: window.clientsData })
           .eq('user_id', window.currentUserSession.user.id);
@@ -2661,11 +2664,11 @@ async function initializeProfile() {
     localStorage.setItem('pensionet_last_pin_verified', Date.now().toString());
     window.lastPinVerificationTime = Date.now();
     if (window.managerName) {
-      localStorage.setItem('pensionNet_activeStaff', window.managerName);
+      localStorage.setItem('pensionet_activeStaff', window.managerName);
     }
   }
   
-  const savedProfile = localStorage.getItem('pensionNet_activeStaff');
+  const savedProfile = localStorage.getItem('pensionet_activeStaff');
   const now = Date.now();
   const pinValid = window.lastPinVerificationTime && (now - window.lastPinVerificationTime < PIN_EXPIRATION_MS);
   
@@ -2687,7 +2690,7 @@ async function initializeProfile() {
     // NEW logic: if only manager profile exists, auto-select it and skip overlay
     const staffNames = (window.currentStaffMembers || []).map(s => typeof s === 'string' ? s : s.name);
     if (staffNames.length === 0 && window.managerName) {
-      localStorage.setItem('pensionNet_activeStaff', window.managerName);
+      localStorage.setItem('pensionet_activeStaff', window.managerName);
       window.isAdminMode = true;
       window.isSessionVerified = true;
       window.lastPinVerificationTime = Date.now();
@@ -2697,7 +2700,7 @@ async function initializeProfile() {
       if (overlay) overlay.style.setProperty('display', 'none', 'important');
     } else {
       // PIN expired or no session, ensure staff is 'צוות'
-      localStorage.setItem('pensionNet_activeStaff', 'צוות');
+      localStorage.setItem('pensionet_activeStaff', 'צוות');
       const activeSelect = document.getElementById('activeStaffSelect');
       if (activeSelect) activeSelect.value = 'צוות';
       window.isAdminMode = false;
@@ -2822,7 +2825,7 @@ async function saveStaffToDB() {
   if (!session) return;
   
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .update({ staff_members: window.currentStaffMembers })
       .eq('user_id', session.user.id);
@@ -3254,7 +3257,7 @@ async function handleInitialProfileChange() {
     document.getElementById('login-overlay').style.setProperty('display', 'none', 'important');
     const activeSelect = document.getElementById('activeStaffSelect');
     if (activeSelect) activeSelect.value = name;
-    localStorage.setItem('pensionNet_activeStaff', name);
+    localStorage.setItem('pensionet_activeStaff', name);
     window.isSessionVerified = true;
     window.overlayManuallyClosed = false;
     showToast(`ברוך הבא, ${name}`, 'success');
@@ -3272,23 +3275,23 @@ async function handleActiveStaffChange() {
      // Optional: decide if switching back to "Team" requires PIN or just logs out profile
      window.isAdminMode = false;
      updateModeUI();
-     localStorage.setItem('pensionNet_activeStaff', 'צוות');
+     localStorage.setItem('pensionet_activeStaff', 'צוות');
      return;
   }
 
   // If already the current active staff, do nothing
-  if (name === localStorage.getItem('pensionNet_activeStaff')) return;
+  if (name === localStorage.getItem('pensionet_activeStaff')) return;
 
   const success = await verifyManagerAccess(name);
   if (!success) {
     // Revert to previous value or default
-    const prev = localStorage.getItem('pensionNet_activeStaff') || 'צוות';
+    const prev = localStorage.getItem('pensionet_activeStaff') || 'צוות';
     if (select) select.value = prev;
     return;
   }
 
   // Access verified
-  localStorage.setItem('pensionNet_activeStaff', name);
+  localStorage.setItem('pensionet_activeStaff', name);
   showToast(`המערכת הותאמה להרשאות של: ${name}`, 'info');
   updateModeUI();
 }
@@ -3299,7 +3302,7 @@ async function toggleAdminMode() {
     window.isAdminMode = false;
     const select = document.getElementById('activeStaffSelect');
     if (select) select.value = 'צוות';
-    localStorage.setItem('pensionNet_activeStaff', 'צוות');
+    localStorage.setItem('pensionet_activeStaff', 'צוות');
     updateModeUI();
   } else {
     // Switching to manager mode - ask for PIN
@@ -3450,7 +3453,7 @@ async function deleteOrderNote(indexInSorted) {
     notes.splice(indexInSorted, 1);
 
     try {
-      const { error } = await pensionNetSupabase
+      const { error } = await pensionetSupabase
         .from('orders')
         .update({ admin_note: JSON.stringify(notes) })
         .eq('id', orderId);
@@ -3492,7 +3495,7 @@ document.getElementById('saveNoteBtn')?.addEventListener('click', async function
   notes.push(newNote);
   
   try {
-    const { data: updateResult, error } = await pensionNetSupabase
+    const { data: updateResult, error } = await pensionetSupabase
       .from('orders')
       .update({ admin_note: JSON.stringify(notes) })
       .eq('id', orderId)
@@ -3613,7 +3616,7 @@ async function loadSettings() {
 
   // Load Staff List
   try {
-    const { data: staffProfiles, error: staffError } = await pensionNetSupabase
+    const { data: staffProfiles, error: staffError } = await pensionetSupabase
       .from('profiles')
       .select('*')
       .eq('pension_id', pension.id);
@@ -3631,12 +3634,12 @@ async function loadSettings() {
     updateStaffSelectors();
 
     // Auto-select current user's profile
-    const storedStaff = localStorage.getItem('pensionNet_activeStaff');
+    const storedStaff = localStorage.getItem('pensionet_activeStaff');
     const myName = profile.full_name;
     const staffNames = getStaffNames();
 
     if (staffNames.includes(myName) && (!storedStaff || storedStaff === 'צוות')) {
-      localStorage.setItem('pensionNet_activeStaff', myName);
+      localStorage.setItem('pensionet_activeStaff', myName);
       const activeSelect = document.getElementById('activeStaffSelect');
       if (activeSelect) activeSelect.value = myName;
     }
@@ -3652,7 +3655,7 @@ async function loadSettings() {
 
   const showHolidaysInput = document.getElementById('settings-show-holidays');
   if (showHolidaysInput) {
-    const showHolidaysDefault = (localStorage.getItem('pensionNet_showHolidays') !== 'false');
+    const showHolidaysDefault = (localStorage.getItem('pensionet_showHolidays') !== 'false');
     showHolidaysInput.checked = (pension.settings?.show_holidays ?? showHolidaysDefault);
   }
   updatePlanUI();
@@ -3693,13 +3696,13 @@ document.getElementById('saveSettingsBtn')?.addEventListener('click', async func
   };
 
   try {
-    const { error: penError } = await pensionNetSupabase
+    const { error: penError } = await pensionetSupabase
       .from('pensions')
       .update(pensionUpdate)
       .eq('id', pension.id);
     if (penError) throw penError;
 
-    const { error: profError } = await pensionNetSupabase
+    const { error: profError } = await pensionetSupabase
       .from('profiles')
       .update(profileUpdate)
       .eq('user_id', profile.user_id);
@@ -3723,7 +3726,7 @@ async function removeStaffMember(profileId) {
 
   showConfirm('<i class="fas fa-user-minus"></i> הסרת איש צוות', 'האם אתה בטוח שברצונך להסיר איש צוות זה מהמערכת?', async () => {
     try {
-      const { error } = await pensionNetSupabase
+      const { error } = await pensionetSupabase
         .from('profiles')
         .update({ pension_id: null, role: 'employee', permissions: [] })
         .eq('id', profileId);
@@ -3759,7 +3762,7 @@ async function addStaffMember() {
   const permissions = Array.from(document.querySelectorAll('.perm-check:checked')).map(cb => cb.value);
 
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .insert([{
           pension_id: pension.id,
@@ -3875,7 +3878,7 @@ async function updateStaffPermission(staffId, checkbox) {
   const newPerms = [...allChecks].filter(cb => cb.checked).map(cb => cb.dataset.perm);
 
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .update({ permissions: newPerms })
       .eq('id', staffId);
@@ -3897,7 +3900,7 @@ async function updateStaffRole(staffId, newRole) {
   const newPerms = newRole === 'manager' ? ['all'] : [];
 
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .update({ role: newRole, permissions: newPerms })
       .eq('id', staffId);
@@ -4085,10 +4088,10 @@ async function fillWithDemoData() {
     });
 
     try {
-      const { error: orderError } = await pensionNetSupabase.from('orders').insert(demoOrders);
+      const { error: orderError } = await pensionetSupabase.from('orders').insert(demoOrders);
       if (orderError) throw orderError;
 
-      const { error: profileError } = await pensionNetSupabase
+      const { error: profileError } = await pensionetSupabase
         .from('profiles')
         .update({ clients_data: updatedClientsData })
         .eq('user_id', session.user.id);
@@ -4122,7 +4125,7 @@ async function clearDemoData() {
 
     try {
       // Step 1: Find all orders that match demo criteria
-      const { data: matches, error: fetchError } = await pensionNetSupabase
+      const { data: matches, error: fetchError } = await pensionetSupabase
         .from('orders')
         .select('id')
         .eq('user_id', session.user.id)
@@ -4137,7 +4140,7 @@ async function clearDemoData() {
 
       // Step 2: Delete by IDs 
       const idsToDelete = matches.map(m => m.id);
-      const { error: deleteError } = await pensionNetSupabase
+      const { error: deleteError } = await pensionetSupabase
         .from('orders')
         .delete()
         .in('id', idsToDelete);
@@ -4223,7 +4226,7 @@ async function createAuditLog(actionType, description, orderId = null) {
     const pensionId = profile?.pension_id || null;
 
     try {
-        await pensionNetSupabase.from('audit_logs').insert([{
+        await pensionetSupabase.from('audit_logs').insert([{
             user_id: session.user.id,
             pension_id: pensionId, // Multi-tenant log tracking
             action_type: actionType,
@@ -4273,7 +4276,7 @@ async function loadAuditLogs() {
 
     try {
         const profile = window.currentUserProfile;
-        let query = pensionNetSupabase.from('audit_logs').select('*');
+        let query = pensionetSupabase.from('audit_logs').select('*');
         
         // Filter by pension if available, otherwise fallback to user_id
         if (profile && profile.pension_id) {
@@ -4404,7 +4407,7 @@ function filterPayments() {
 
 async function updatePaymentMethod(orderId, method) {
     try {
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
             .from('orders')
             .update({ payment_method: method })
             .eq('id', orderId);
@@ -4424,7 +4427,7 @@ async function updatePaymentMethod(orderId, method) {
 
 async function updateAmountPaid(orderId, amount) {
     try {
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
             .from('orders')
             .update({ amount_paid: parseInt(amount) || 0 })
             .eq('id', orderId);
@@ -4464,7 +4467,7 @@ async function togglePaidStatus(orderId, newStatus) {
             order.amount_paid = 0;
         }
 
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
             .from('orders')
             .update(updateData)
             .eq('id', orderId);
@@ -4483,7 +4486,7 @@ async function togglePaidStatus(orderId, newStatus) {
 async function updatePricePerDay(orderId, newPrice) {
     try {
         const price = parseInt(newPrice) || 0;
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
             .from('orders')
             .update({ price_per_day: price })
             .eq('id', orderId);
@@ -4502,7 +4505,7 @@ async function updatePricePerDay(orderId, newPrice) {
                 window.clientsData[phoneKey].default_price = price;
                 
                 // עדכון במסד הנתונים
-                await pensionNetSupabase
+                await pensionetSupabase
                     .from('profiles')
                     .update({ clients_data: window.clientsData })
                     .eq('user_id', window.currentUserSession.user.id);
@@ -4700,7 +4703,7 @@ async function syncClientsPricesFromHistory() {
         });
 
         if (updatedCount > 0) {
-            const { error } = await pensionNetSupabase
+            const { error } = await pensionetSupabase
                 .from('profiles')
                 .update({ clients_data: window.clientsData })
                 .eq('user_id', session.user.id);
@@ -4908,7 +4911,7 @@ async function saveClientData(phoneKey, priceValue, cityValue) {
   }
   
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .update({ clients_data: window.clientsData })
       .eq('user_id', session.user.id);
@@ -4916,7 +4919,7 @@ async function saveClientData(phoneKey, priceValue, cityValue) {
     if (error) {
       if (error.code === 'PGRST204' || String(error.message).includes('column "clients_data" of relation "profiles" does not exist')) {
           // Graceful degradation to localstorage if migration not run
-          localStorage.setItem('pensionNet_clientsData_fallback_' + session.user.id, JSON.stringify(window.clientsData));
+          localStorage.setItem('pensionet_clientsData_fallback_' + session.user.id, JSON.stringify(window.clientsData));
           showToast('הנתונים נשמרו מקומית (דרוש עדכון מסד נתונים)', 'success');
       } else {
           throw error;
@@ -4962,7 +4965,7 @@ async function deleteOrder(orderId) {
     const order = window.allOrdersCache.find(o => String(o.id) === String(orderId));
 
     try {
-        const { error } = await pensionNetSupabase
+        const { error } = await pensionetSupabase
             .from('orders')
             .delete()
             .eq('id', orderId);
@@ -5005,7 +5008,7 @@ async function deleteClient(phoneKey) {
 
     try {
         // 1. Delete all orders for this client
-        const { error: ordersError } = await pensionNetSupabase
+        const { error: ordersError } = await pensionetSupabase
             .from('orders')
             .delete()
             .eq('phone', clientObj.originalPhone);
@@ -5015,7 +5018,7 @@ async function deleteClient(phoneKey) {
         // 2. Remove from clients_data in profile
         if (window.clientsData && window.clientsData[phoneKey]) {
             delete window.clientsData[phoneKey];
-            const { error: profileError } = await pensionNetSupabase
+            const { error: profileError } = await pensionetSupabase
                 .from('profiles')
                 .update({ clients_data: window.clientsData })
                 .eq('user_id', session.user.id);
@@ -5027,7 +5030,7 @@ async function deleteClient(phoneKey) {
         }
 
         // Search and delete in fallback as well
-        const fallbackKey = 'pensionNet_clientsData_fallback_' + session.user.id;
+        const fallbackKey = 'pensionet_clientsData_fallback_' + session.user.id;
         const localFallback = localStorage.getItem(fallbackKey);
         if (localFallback) {
             try {
@@ -5214,14 +5217,14 @@ async function saveEditClient() {
     }
 
     // 2. Save clients_data to profiles
-    const { error: profileError } = await pensionNetSupabase
+    const { error: profileError } = await pensionetSupabase
       .from('profiles')
       .update({ clients_data: window.clientsData })
       .eq('user_id', session.user.id);
 
     if (profileError) {
       if (profileError.code === 'PGRST204' || String(profileError.message).includes('clients_data')) {
-        localStorage.setItem('pensionNet_clientsData_fallback_' + session.user.id, JSON.stringify(window.clientsData));
+        localStorage.setItem('pensionet_clientsData_fallback_' + session.user.id, JSON.stringify(window.clientsData));
       } else {
         throw profileError;
       }
@@ -5271,7 +5274,7 @@ async function saveEditClient() {
             const dogOrderIds = matchingDogOrders.map(o => o.id);
             const newDogName = change.type === 'rename' ? change.current : '[נמחק]';
             
-            await pensionNetSupabase
+            await pensionetSupabase
               .from('orders')
               .update({ dog_name: newDogName })
               .in('id', dogOrderIds);
@@ -5288,7 +5291,7 @@ async function saveEditClient() {
           if (hasPhoneChanged) orderUpdateData.phone = newPhone;
 
           const orderIds = matchingOrders.map(o => o.id);
-          await pensionNetSupabase
+          await pensionetSupabase
             .from('orders')
             .update(orderUpdateData)
             .in('id', orderIds);
@@ -5483,7 +5486,7 @@ document.getElementById('customEventForm')?.addEventListener('submit', async fun
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
   
   try {
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('profiles')
       .update({ custom_events: updatedEvents })
       .eq('user_id', session.user.id);
@@ -5525,7 +5528,7 @@ function promptDeleteCustomEvent(eventId) {
             const updatedEvents = window.pensionCustomEvents.filter(ev => ev.id !== eventId);
             
             try {
-                const { error } = await pensionNetSupabase
+                const { error } = await pensionetSupabase
                     .from('profiles')
                     .update({ custom_events: updatedEvents })
                     .eq('user_id', session.user.id);
@@ -5565,14 +5568,14 @@ async function handleAvatarUpload(event) {
 
     // Update profile in DB (Try first)
     try {
-        await pensionNetSupabase
+        await pensionetSupabase
             .from('profiles')
             .update({ avatar_url: publicUrl })
             .eq('user_id', session.user.id);
     } catch(e) {}
     
     // Update Auth Metadata (Reliable fallback)
-    const { error: metaError } = await pensionNetSupabase.auth.updateUser({
+    const { error: metaError } = await pensionetSupabase.auth.updateUser({
         data: { avatar_url: publicUrl }
     });
     
@@ -5595,7 +5598,7 @@ async function handleAvatarUpload(event) {
 
 async function uploadAvatar(file, userId) {
   if (!file) return null;
-  const client = pensionNetSupabase;
+  const client = pensionetSupabase;
   if (!client) return null;
 
   const fileExt = file.name.split('.').pop();
@@ -5627,7 +5630,7 @@ async function uploadAvatar(file, userId) {
 async function uploadDogPhoto(file, userId) {
   if (!file) return null;
   
-  const client = pensionNetSupabase;
+  const client = pensionetSupabase;
   if (!client) return null;
 
   const fileExt = file.name.split('.').pop();
@@ -5674,7 +5677,7 @@ async function handleAdminDogPhotoUpload(event, dogName, phoneKey) {
 
     // Update ALL orders for this dog and client to have this photo
     const originalPhone = document.getElementById('editClientOriginalPhone').value;
-    const { error } = await pensionNetSupabase
+    const { error } = await pensionetSupabase
       .from('orders')
       .update({ dog_photo: photoUrl })
       .eq('phone', originalPhone)
@@ -5725,7 +5728,7 @@ async function triggerDogPhotoUploadFromTable(orderId, dogName, phone) {
       
       // Update ALL orders for this dog and client (using the clean phone from createAuditLog/processClients style)
       // Actually, order table has the original phone string
-      const { error } = await pensionNetSupabase
+      const { error } = await pensionetSupabase
         .from('orders')
         .update({ dog_photo: photoUrl })
         .eq('phone', phone)

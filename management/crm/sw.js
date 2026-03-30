@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pension-net-crm-v1';
+const CACHE_NAME = 'pensionet-crm-v1';
 const ASSETS = [
     'index.html',
     'favicon.png',

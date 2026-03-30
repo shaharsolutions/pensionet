@@ -1,5 +1,5 @@
 /**
- * Pension-Net | Pensions Directory Logic
+ * Pensionet | Pensions Directory Logic
  */
 
 let pensionsSupabase;
@@ -35,7 +35,7 @@ async function init() {
     }
 
     // Restore Admin state if active in session
-    if (sessionStorage.getItem('pensionNet_isAdmin') === 'true') {
+    if (sessionStorage.getItem('pensionet_isAdmin') === 'true') {
         isAdmin = true;
         const trigger = document.getElementById('adminLoginTrigger');
         if (trigger) {
@@ -330,7 +330,7 @@ function closeConfirmModal() {
 
 function logoutAdmin() {
     isAdmin = false;
-    sessionStorage.removeItem('pensionNet_isAdmin');
+    sessionStorage.removeItem('pensionet_isAdmin');
     const trigger = document.getElementById('adminLoginTrigger');
     trigger.classList.remove('active');
     trigger.innerHTML = '<i class="fas fa-user-shield"></i>';
@@ -349,7 +349,7 @@ function checkAdminPassword() {
     const pass = document.getElementById('adminPassword').value;
     if (pass === ADMIN_PASS) {
         isAdmin = true;
-        sessionStorage.setItem('pensionNet_isAdmin', 'true');
+        sessionStorage.setItem('pensionet_isAdmin', 'true');
         const trigger = document.getElementById('adminLoginTrigger');
         trigger.classList.add('active');
         trigger.innerHTML = '<i class="fas fa-sign-out-alt"></i>';

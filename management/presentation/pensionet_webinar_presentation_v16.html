@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pension-Net Webinar Deck</title>
+  <title>Pensionet Webinar Deck</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
@@ -121,7 +121,7 @@
     <div class="brand">
       <div class="logo">🐾</div>
       <div>
-        <h1>Pension-Net</h1>
+        <h1>Pensionet</h1>
         <p>וובינר · מצב דמו</p>
       </div>
     </div>
@@ -574,7 +574,7 @@
 
   function openRemote(){
     if(remoteWindow && !remoteWindow.closed){ remoteWindow.focus(); setPresenting(true); syncRemote(); return; }
-    remoteWindow=window.open('', 'pensionnetRemote', 'width=420,height=760,resizable=yes,scrollbars=yes');
+    remoteWindow=window.open('', 'pensionetRemote', 'width=420,height=760,resizable=yes,scrollbars=yes');
     if(!remoteWindow){ alert('הדפדפן חסם את חלון השלט.'); return; }
     setPresenting(true);
     remoteWindow.onbeforeunload=()=>setPresenting(false);
