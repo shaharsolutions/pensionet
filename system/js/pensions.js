@@ -279,7 +279,7 @@ function renderPensions() {
 
     listContainer.innerHTML = sortedData.map(p => `
         <div class="pension-card ${!p.is_visible ? 'hidden-by-admin' : ''}" data-id="${p.user_id}" onclick="focusPension('${p.user_id}')">
-            ${(p.distance && p.distance !== Infinity) ? `<span class="badge">${p.distance.toFixed(1)} ק"מ</span>` : ''}
+            ${(p.distance && p.distance !== Infinity) ? `<span class="badge">${p.distance.toFixed(1)} ${window.i18n ? window.i18n.getTranslation('pension_unit_km') : 'ק"מ'}</span>` : ''}
             
             <h3>
                 ${isAdmin ? `
@@ -292,19 +292,19 @@ function renderPensions() {
                 ${p.business_name}
             </h3>
             <div class="location">
-                <i class="fas fa-map-marker-alt"></i> ${p.location || 'מיקום לא צוין'}
+                <i class="fas fa-map-marker-alt"></i> ${p.location || (window.i18n ? window.i18n.getTranslation('pension_location_not_specified') : 'מיקום לא צוין')}
             </div>
             <div class="info-row">
                 <div class="info-item">
                     <i class="fas fa-tags"></i> ₪${p.default_price || 0} ליום
                 </div>
                 <div class="info-item">
-                    <i class="fas fa-users"></i> עד ${p.max_capacity || 0} כלבים
+                    <i class="fas fa-users"></i> ${window.i18n ? window.i18n.getTranslation('pension_capacity_prefix') : 'עד'} ${p.max_capacity || 0} ${window.i18n ? window.i18n.getTranslation('pension_capacity_suffix') : 'כלבים'}
                 </div>
             </div>
             <div class="card-actions">
-                <a href="order.html?owner=${p.user_id}" class="card-btn btn-primary" onclick="event.stopPropagation()">הזמן עכשיו</a>
-                <a href="tel:${p.phone}" class="card-btn btn-outline" onclick="event.stopPropagation()">התקשר</a>
+                <a href="order.html?owner=${p.user_id}" class="card-btn btn-primary" onclick="event.stopPropagation()" data-i18n="pension_btn_order">הזמן עכשיו</a>
+                <a href="tel:${p.phone}" class="card-btn btn-outline" onclick="event.stopPropagation()" data-i18n="pension_btn_call">התקשר</a>
             </div>
         </div>
     `).join('');
@@ -540,9 +540,11 @@ function setupEventListeners() {
         const sidebar = document.querySelector('.sidebar');
         sidebar.classList.toggle('visible');
         const btn = document.getElementById('toggleMobileView');
+        const showList = window.i18n ? window.i18n.getTranslation('mobile_show_list') : 'הצג רשימה';
+        const showMap = window.i18n ? window.i18n.getTranslation('mobile_show_map') : 'חזרה למפה';
         btn.innerHTML = sidebar.classList.contains('visible') 
-            ? '<i class="fas fa-map-marked-alt"></i> חזרה למפה' 
-            : '<i class="fas fa-list-ul"></i> הצג רשימת פנסיונים';
+            ? `<i class="fas fa-map-marked-alt"></i> ${showMap}` 
+            : `<i class="fas fa-list-ul"></i> ${showList}`;
     });
 }
 

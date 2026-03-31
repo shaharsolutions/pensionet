@@ -2,7 +2,7 @@
 <html lang="he">
   <head>
     <meta charset="UTF-8" />
-    <title>ניתוחים ותחזיות - פנסיון כלבים</title>
+    <title data-i18n="head_title_growth">ניתוחים ותחזיות - פנסיון כלבים</title>
     <meta name="description" content="דוחות ותחזיות עסקיות - מערכת ניהול פנסיון כלבים" />
     <link rel="icon" href="favicon.png" type="image/png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -14,18 +14,18 @@
   </head>
   <body>
     <header>
-      <a href="admin.html" class="back-btn left">← חזרה לניהול</a>
-      <a href="insights.html" class="back-btn" style="left: 160px;">
+      <a href="admin.html" class="back-btn left" data-i18n="back_to_mgmt">← חזרה לניהול</a>
+      <a href="insights.html" class="back-btn" style="left: 160px;" data-i18n="header_insights">
         <i class="fas fa-magic"></i> מדריך תובנות
       </a>
 
       <div class="header-center">
-        <h1><i class="fas fa-chart-line"></i> דוחות ותחזיות עסקיות</h1>
+        <h1 data-i18n="growth_title"><i class="fas fa-chart-line"></i> דוחות ותחזיות עסקיות</h1>
         <div id="header-business-name" class="header-subtitle" style="font-size: 16px; color: var(--primary); font-weight: 700; margin-top: 5px;"></div>
       </div>
     </header>
 
-    <div id="loadingIndicator" class="loading">טוען נתונים...</div>
+    <div id="loadingIndicator" class="loading" data-i18n="loading_data">טוען נתונים...</div>
 
     <div id="dashboardContent" style="display: none">
       <!-- תובנות עסקיות חכמות -->
@@ -34,71 +34,71 @@
       <!-- KPIs עיקריים -->
       <div class="dashboard-grid">
         <div class="card">
-          <h3><i class="fas fa-dollar-sign"></i> הכנסות החודש</h3>
+          <h3 data-i18n="growth_revenue"><i class="fas fa-dollar-sign"></i> הכנסות החודש</h3>
           <div class="stat-value" id="monthlyRevenue">₪0</div>
           <div class="stat-change positive" id="revenueChange">+0%</div>
         </div>
 
         <div class="card">
-          <h3><i class="fas fa-paw"></i> כלבים החודש</h3>
+          <h3 data-i18n="growth_dogs"><i class="fas fa-paw"></i> כלבים החודש</h3>
           <div class="stat-value" id="monthlyDogs">0</div>
           <div class="stat-change positive" id="dogsChange">+0%</div>
         </div>
 
         <div class="card">
-          <h3><i class="fas fa-chart-line"></i> תפוסה ממוצעת</h3>
+          <h3 data-i18n="growth_occupancy"><i class="fas fa-chart-line"></i> תפוסה ממוצעת</h3>
           <div class="stat-value" id="avgOccupancy">0%</div>
-          <div class="stat-label">קיבולת מקסימלית: 10 כלבים</div>
+          <div class="stat-label"><span data-i18n="growth_max_capacity">קיבולת מקסימלית:</span> 10 כלבים</div>
         </div>
 
         <div class="card">
-          <h3><i class="fas fa-gem"></i> צמיחה ושימור</h3>
+          <h3 data-i18n="growth_retention"><i class="fas fa-gem"></i> צמיחה ושימור</h3>
           <div class="stat-value" id="retentionRate">0%</div>
-          <div class="stat-label" id="newCustomers">0 לקוחות חדשים החודש</div>
+          <div class="stat-label" id="newCustomers">0 <span data-i18n="growth_new_customers">לקוחות חדשים החודש</span></div>
         </div>
       </div>
 
       <!-- תחזית הכנסות -->
       <div class="prediction-box">
-        <h3><i class="fas fa-crystal-ball"></i> תחזית הכנסות - 3 חודשים הבאים</h3>
+        <h3 data-i18n="growth_forecast"><i class="fas fa-crystal-ball"></i> תחזית הכנסות - 3 חודשים הבאים</h3>
         <div class="prediction-item">
-          <span id="nextMonth1">חודש הבא</span>
+          <span id="nextMonth1" data-i18n="growth_next_month">חודש הבא</span>
           <strong id="prediction1">₪0</strong>
         </div>
         <div class="prediction-item">
-          <span id="nextMonth2">חודשיים</span>
+          <span id="nextMonth2" data-i18n="growth_two_months">חודשיים</span>
           <strong id="prediction2">₪0</strong>
         </div>
         <div class="prediction-item">
-          <span id="nextMonth3">שלושה חודשים</span>
+          <span id="nextMonth3" data-i18n="growth_three_months">שלושה חודשים</span>
           <strong id="prediction3">₪0</strong>
         </div>
       </div>
 
       <!-- גרף הכנסות חודשיות -->
       <div class="chart-container">
-        <h3><i class="fas fa-chart-area"></i> הכנסות ב-6 חודשים אחרונים</h3>
+        <h3 data-i18n="growth_chart_revenue"><i class="fas fa-chart-area"></i> הכנסות ב-6 חודשים אחרונים</h3>
         <canvas id="revenueChart"></canvas>
       </div>
 
       <!-- גרף תפוסה -->
       <div class="chart-container">
-        <h3><i class="fas fa-calendar-alt"></i> תפוסה לפי חודש</h3>
+        <h3 data-i18n="growth_chart_occupancy"><i class="fas fa-calendar-alt"></i> תפוסה לפי חודש</h3>
         <canvas id="occupancyChart"></canvas>
       </div>
 
       <!-- לקוחות מובילים -->
       <div class="table-container">
-        <h3><i class="fas fa-star"></i> 5 הלקוחות המובילים</h3>
+        <h3 data-i18n="growth_top_customers"><i class="fas fa-star"></i> 5 הלקוחות המובילים</h3>
         <table id="topCustomersTable">
           <thead>
             <tr>
-              <th>#</th>
-              <th>שם</th>
-              <th>טלפון</th>
-              <th>הזמנות</th>
-              <th>סה"כ הכנסות</th>
-              <th>ממוצע לביקור</th>
+              <th data-i18n="growth_col_rank">#</th>
+              <th data-i18n="growth_col_name">שם</th>
+              <th data-i18n="growth_col_phone">טלפון</th>
+              <th data-i18n="growth_col_orders">הזמנות</th>
+              <th data-i18n="growth_col_revenue">סה"כ הכנסות</th>
+              <th data-i18n="growth_col_avg_visit">ממוצע לביקור</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -108,7 +108,7 @@
       <!-- ניתוח גדלים ופרטים -->
       <div class="dashboard-grid">
         <div class="card" style="grid-column: 1 / -1;">
-          <h3><i class="fas fa-dog"></i> פילוח שוק לפי גודל הכלב</h3>
+          <h3 data-i18n="growth_market_segment"><i class="fas fa-dog"></i> פילוח שוק לפי גודל הכלב</h3>
           <div id="breedBreakdown" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;"></div>
         </div>
       </div>
@@ -116,13 +116,14 @@
       
       <footer style="margin-top: 40px; padding: 30px; text-align: center; border-top: 1px solid var(--border-color); background: white; border-radius: 16px;">
           <p style="margin: 0; color: var(--text-muted); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 5px;">
-              <span>מבית</span>
-              <a href="https://shaharsolutions.github.io/shahardigitalsolutions/" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: 700; border-bottom: 1.5px solid rgba(99, 102, 241, 0.4); padding-bottom: 2px; transition: all 0.3s ease;">שחר פתרונות דיגיטליים</a>
+              <span data-i18n="made_by">מבית</span>
+              <a href="https://shaharsolutions.github.io/shahardigitalsolutions/" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: 700; border-bottom: 1.5px solid rgba(99, 102, 241, 0.4); padding-bottom: 2px; transition: all 0.3s ease;" data-i18n="brand_name">שחר פתרונות דיגיטליים</a>
           </p>
       </footer>
     </div>
 
     <!-- External JavaScript -->
+    <script src="js/i18n.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

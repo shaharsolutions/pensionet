@@ -15,54 +15,75 @@ function calculateDaysLocal(checkIn, checkOut) {
 }
 
 function getMonthName(monthIndex) {
+    if (window.i18n) return window.i18n.getTranslation('month_' + monthIndex);
     const months = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
     return months[monthIndex];
 }
 
 function formatCurrencyLocal(amount) {
-    return "₪" + amount.toLocaleString("he-IL");
+    const lang = window.i18n ? (window.i18n.getCurrentLang() === 'he' ? 'he-IL' : 'en-US') : 'he-IL';
+    const symbol = window.i18n ? (window.i18n.getCurrentLang() === 'he' ? '₪' : '₪') : '₪'; // Keeping Shekel for now but formatting it
+    return (window.i18n && window.i18n.getCurrentLang() === 'en' ? 'ILS ' : '₪') + amount.toLocaleString(lang);
+}
+
+function translateSize(size) {
+    if (!window.i18n) return size;
+    const map = {
+        'גדול': 'dog_size_large',
+        'בינוני': 'dog_size_medium',
+        'קטן': 'dog_size_small',
+        'לא צוין': 'dog_size_none'
+    };
+    return window.i18n.getTranslation(map[size] || size);
 }
 
 function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy, topCustomers, sizeBreakdown) {
     const insights = [];
+    const t = (key, params = {}) => {
+        let text = window.i18n ? window.i18n.getTranslation(key) : key;
+        for (const [k, v] of Object.entries(params)) {
+            text = text.replace(`{${k}}`, v);
+        }
+        return text;
+    };
 
-    // ניתוח צמיחה
+    // Growth analysis
     const revenueGrowth = lastMonthRev > 0 ? ((thisMonthRev - lastMonthRev) / lastMonthRev) * 100 : 0;
     if (revenueGrowth > 10) {
         insights.push({
             icon: "<i class='fas fa-rocket'></i>",
-            title: "צמיחה מרשימה",
-            analysis: `ההכנסות עלו ב-${revenueGrowth > 0 ? revenueGrowth.toFixed(1) : '0'}% לעומת החודש הקודם!`,
-            recommendation: "המגמה חיובית - זה הזמן לנצל את התנופה ולהשקיע בשיווק ממוקד כדי להגדיל עוד יותר את המאגר."
+            title: t('insight_growth_title'),
+            analysis: t('insight_growth_analysis', { val: revenueGrowth.toFixed(1) }),
+            recommendation: t('insight_growth_rec')
         });
     } else if (revenueGrowth < -10) {
         insights.push({
             icon: "<i class='fas fa-exclamation-triangle'></i>",
-            title: "ירידה בהכנסות",
-            analysis: `זיהינו ירידה של ${revenueGrowth < 0 ? Math.abs(revenueGrowth).toFixed(1) : '0'}% בהכנסות החודש.`,
-            recommendation: "כדאי לבדוק: האם יש עונתיות? האם יש צורך בקמפיין שיווקי חדש? או אולי מתחרים חדשים נכנסו לאזור?"
+            title: t('insight_decline_title'),
+            analysis: t('insight_decline_analysis', { val: Math.abs(revenueGrowth).toFixed(1) }),
+            recommendation: t('insight_decline_rec')
         });
     }
 
-    // ניתוח תפוסה
+    // Occupancy analysis
     const occupancyNum = parseFloat(occupancy);
     if (occupancyNum > 80) {
         insights.push({
             icon: "<i class='fas fa-bullseye'></i>",
-            title: "תפוסה גבוהה",
-            analysis: `תפוסה של ${occupancyNum > 0 ? occupancyNum.toFixed(1) : '0'}% היא מצוינת ומעידה על ביקוש רב.`,
-            recommendation: "אתה מתקרב למקסימום. מומלץ לשקול: העלאת מחירים בעונות שיא, הרחבת הפנסיון, או העסקת סיוע נוסף."
+            title: t('insight_occupancy_title'),
+            analysis: t('insight_occupancy_analysis', { val: occupancyNum.toFixed(1) }),
+            recommendation: t('insight_occupancy_rec')
         });
     } else if (occupancyNum < 50) {
         insights.push({
             icon: "<i class='fas fa-bullhorn'></i>",
-            title: "פוטנציאל לצמיחה",
-            analysis: `תפוסה של ${occupancyNum > 0 ? occupancyNum.toFixed(1) : '0'}% משאירה מקום רב לגידול בפעילות.`,
-            recommendation: "כדאי להשקיע בפרסום ממוקד, מבצעי 'חבר מביא חבר' או שיתופי פעולה עם מרפאות וטרינריות בסביבה."
+            title: t('insight_potential_title'),
+            analysis: t('insight_potential_analysis', { val: occupancyNum.toFixed(1) }),
+            recommendation: t('insight_potential_rec')
         });
     }
 
-    // ניתוח נאמנות לקוחות
+    // Loyalty analysis
     const repeatCustomers = {};
     orders.forEach((order) => {
         repeatCustomers[order.phone] = (repeatCustomers[order.phone] || 0) + 1;
@@ -74,19 +95,20 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
     if (loyaltyRate > 30) {
         insights.push({
             icon: "<i class='fas fa-heart'></i>",
-            title: "נאמנות לקוחות גבוהה",
-            analysis: `${loyaltyRate > 0 ? loyaltyRate.toFixed(1) : '0'}% מהלקוחות שלך הם לקוחות חוזרים קבועים.`,
-            recommendation: "זה מעולה! שקול להשיק כרטיסיית 'חבר מועדון' (למשל: יום 11 חינם) כדי לחזק את הקשר עוד יותר."
+            title: t('insight_loyalty_title'),
+            analysis: t('insight_loyalty_analysis', { val: loyaltyRate.toFixed(1) }),
+            recommendation: t('insight_loyalty_rec')
         });
     } else {
         insights.push({
             icon: "<i class='fas fa-gift'></i>",
-            title: "הזדמנות לשימור",
-            analysis: `שיעור הלקוחות החוזרים עומד על ${loyaltyRate > 0 ? loyaltyRate.toFixed(1) : '0'}%.`,
-            recommendation: "מומלץ לשלוח הודעת תודה לאחר ביקור, להציע הנחה קטנה בהזמנה הבאה, או ליצור קבוצת עדכונים שקטה ללקוחות."
+            title: t('insight_retention_title'),
+            analysis: t('insight_retention_analysis', { val: loyaltyRate.toFixed(1) }),
+            recommendation: t('insight_retention_rec')
         });
     }
 
+    // Dependency analysis
     const top20PercentCount = Math.ceil(totalCustomers * 0.2);
     const top20Revenue = topCustomers.slice(0, top20PercentCount).reduce((sum, c) => sum + c.revenue, 0);
     const totalRevenue = topCustomers.reduce((sum, c) => sum + c.revenue, 0);
@@ -95,12 +117,13 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
     if (top20Percentage > 70) {
         insights.push({
             icon: "<i class='fas fa-star'></i>",
-            title: "תלות בלקוחות קבועים",
-            analysis: `${top20Percentage > 0 ? top20Percentage.toFixed(1) : '0'}% מההכנסות מגיעות מ-20% בלבד מהלקוחות.`,
-            recommendation: "הלקוחות האלו הם הליבה של העסק, אבל יש סיכון בתלות גבוהה. כדאי לנסות להרחיב את המעגל לקהלים חדשים."
+            title: t('insight_dependency_title'),
+            analysis: t('insight_dependency_analysis', { val: top20Percentage.toFixed(1) }),
+            recommendation: t('insight_dependency_rec')
         });
     }
 
+    // Expertise analysis
     const sortedSizes = Object.entries(sizeBreakdown).sort((a, b) => b[1] - a[1]);
     if (sortedSizes.length > 0) {
         const topSize = sortedSizes[0];
@@ -108,13 +131,14 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
         if (topSizePercent > 40) {
             insights.push({
                 icon: "<i class='fas fa-dog'></i>",
-                title: `מומחיות ב${topSize[0]}`,
-                analysis: `${topSizePercent > 0 ? topSizePercent.toFixed(1) : '0'}% מהלקוחות שלך הם בגודל "${topSize[0]}".`,
-                recommendation: "זה בידול מצוין! תוכל לשווק את עצמך כמומחה וספציפי לגודל הזה ולהתאים את האביזרים והפעילויות עבורם."
+                title: t('insight_expertise_title', { val: translateSize(topSize[0]) }),
+                analysis: t('insight_expertise_analysis', { val: topSizePercent.toFixed(1), size: translateSize(topSize[0]) }),
+                recommendation: t('insight_expertise_rec')
             });
         }
     }
 
+    // Seasonality analysis
     const monthlyDistribution = {};
     orders.forEach((order) => {
         const month = new Date(order.check_in).getMonth();
@@ -128,9 +152,9 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
         if (maxMonth[1] > minMonth[1] * 2) {
             insights.push({
                 icon: "<i class='fas fa-calendar-alt'></i>",
-                title: "זיהוי עונתיות",
-                analysis: `הביקוש בשיאו ב${getMonthName(parseInt(maxMonth[0]))} ובשפל ב${getMonthName(parseInt(minMonth[0]))}.`,
-                recommendation: "תכנן מבצעים אטרקטיביים לחודשים החלשים והעלה מעט את התעריפים בעונות השיא והחגים."
+                title: t('insight_seasonality_title'),
+                analysis: t('insight_seasonality_analysis', { max: getMonthName(parseInt(maxMonth[0])), min: getMonthName(parseInt(minMonth[0])) }),
+                recommendation: t('insight_seasonality_rec')
             });
         }
     }
@@ -140,7 +164,6 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
 
     let html = '<div class="business-insights-container">';
     insights.forEach((insight) => {
-        // Determine class based on icon
         let typeClass = 'info';
         if (insight.icon.includes('fa-rocket') || insight.icon.includes('fa-heart') || insight.icon.includes('fa-star')) typeClass = 'success';
         if (insight.icon.includes('fa-exclamation-triangle')) typeClass = 'warning';
@@ -155,7 +178,7 @@ function generateBusinessInsights(orders, thisMonthRev, lastMonthRev, occupancy,
                 <div class="insight-body">
                     <div class="insight-analysis">${insight.analysis}</div>
                     <div class="insight-recommendation">
-                        <span class="rec-label"><i class="fas fa-lightbulb"></i> המלצה:</span>
+                        <span class="rec-label"><i class="fas fa-lightbulb"></i> ${window.i18n ? window.i18n.getTranslation('recommendation_label') : 'Recommendation'}:</span>
                         ${insight.recommendation}
                     </div>
                 </div>
@@ -233,7 +256,7 @@ async function loadAnalytics() {
 
         if (isDemo) {
             const headSub = document.getElementById('header-business-name');
-            if (headSub) headSub.textContent = "הפנסיון המדגים";
+            if (headSub) headSub.textContent = (window.i18n ? window.i18n.getTranslation('demo_pension_name') : "הפנסיון המדגים");
             PNET_MAX_CAPACITY = 10;
         } else if (session) {
             // Fetch owner's profile for max_capacity and business_name

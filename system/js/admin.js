@@ -116,9 +116,9 @@ async function copyBookingLink(event) {
         
         // Alert user if business name is still the default/missing
         if (!window.businessName || window.businessName === 'פנסיון לכלבים') {
-          showToast('הקישור הועתק! שים לב: שם הפנסיון עדיין לא הוגדר בהגדרות.', 'info');
+          showToast(window.i18n ? window.i18n.getTranslation('toast_link_copied_no_name') : 'הקישור הועתק! שים לב: שם הפנסיון עדיין לא הוגדר בהגדרות.', 'info');
         } else {
-          showToast('הקישור להזמנות הועתק! ניתן לשלוח אותו ללקוחות.', 'success');
+          showToast(window.i18n ? window.i18n.getTranslation('toast_link_copied') : 'הקישור להזמנות הועתק! ניתן לשלוח אותו ללקוחות.', 'success');
         }
       } else {
         // Fallback for older browsers or insecure contexts
@@ -136,7 +136,7 @@ async function copyBookingLink(event) {
       prompt('העתק את הקישור שלך מכאן:', bookingUrl);
     }
   } else {
-    showToast('שגיאה: לא נמצא סשן פעיל. נא להתחבר מחדש.', 'error');
+    showToast(window.i18n ? window.i18n.getTranslation('toast_copy_error_session') : 'שגיאה: לא נמצא סשן פעיל. נא להתחבר מחדש.', 'error');
   }
 }
 
@@ -146,8 +146,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (urlParams.get('demo') === 'true') {
      window.isDemoMode = true;
      window.currentPlanId = 'pro_plus'; // Show all features in demo
-     window.managerName = 'מנהל דמו';
-     window.currentStaffMembers = [{ name: 'עובד לדוגמה', pin: '1234', permissions: { edit_status: true, edit_details: true } }];
+     window.managerName = window.i18n ? window.i18n.getTranslation('demo_manager') : 'מנהל דמו'; 
+     window.currentStaffMembers = [{ name: window.i18n ? window.i18n.getTranslation('sample_employee') : 'עובד לדוגמה', pin: '1234', permissions: { edit_status: true, edit_details: true } }];
      document.body.classList.add('demo-mode');
      const overlay = document.getElementById('login-overlay');
      if (overlay) overlay.style.setProperty('display', 'none', 'important');
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             // Better fallback: use data from the profile as it likely contains the owner's original settings
             window.currentPension = { 
                 id: profile.pension_id, 
-                name: profile.business_name || impersonateUserName || 'פנסיון',
+                name: profile.business_name || impersonateUserName || (window.i18n ? window.i18n.getTranslation('pension_placeholder') : 'פנסיון'),
                 max_capacity: profile.max_capacity || 15, // Improved fallback from profile
                 phone: profile.phone || '',
                 location: profile.location || '',
@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
       } catch (err) {
         console.error('Failed to load impersonated profile:', err);
-        showToast('שגיאה בטעינת נתוני המשתמש לצפייה', 'error');
+        showToast(window.i18n ? window.i18n.getTranslation('toast_error_loading_profile') : 'שגיאה בטעינת נתוני המשתמש לצפייה', 'error');
       }
       
       // Inject impersonation banner
@@ -255,10 +255,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         ">
           <div style="display: flex; align-items: center; gap: 10px;">
             <i class="fas fa-user-secret" style="font-size: 18px;"></i>
-            <span>מצב צפייה כמשתמש: <strong>${impersonateUserName || 'משתמש'}</strong></span>
+            <span>${window.i18n ? window.i18n.getTranslation('view_mode_prefix') : 'מצב צפייה כמשתמש: '}<strong>${impersonateUserName || (window.i18n ? window.i18n.getTranslation('sample_employee') : 'משתמש')}</strong></span>
           </div>
           <span style="opacity: 0.8; font-size: 12px; font-weight: 400;">
-            (הנתונים מוצגים בקריאה בלבד)
+            ${window.i18n ? window.i18n.getTranslation('view_mode_readonly') : '(הנתונים מוצגים בקריאה בלבד)'}
           </span>
           <button onclick="stopImpersonationFromAdmin()" style="
             background: rgba(255,255,255,0.25); color: white; border: 2px solid rgba(255,255,255,0.5);
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             margin-right: auto;
           " onmouseover="this.style.background='rgba(255,255,255,0.4)'" 
              onmouseout="this.style.background='rgba(255,255,255,0.25)'">
-            <i class="fas fa-arrow-right"></i> סיום צפייה
+            <i class="fas fa-arrow-right"></i> ${window.i18n ? window.i18n.getTranslation('view_mode_end') : 'סיום צפייה'}
           </button>
         </div>
       `;
@@ -354,12 +354,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       const confirmPassword = document.getElementById('settings-confirm-password').value;
 
       if (!newPassword || newPassword.length < 6) {
-        showToast('הסיסמה חייבת להכיל לפחות 6 תווים', 'error');
+        showToast(window.i18n ? window.i18n.getTranslation('toast_pass_too_short') : 'הסיסמה חייבת להכיל לפחות 6 תווים', 'error');
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        showToast('הסיסמאות אינן תואמות', 'error');
+        showToast(window.i18n ? window.i18n.getTranslation('toast_pass_mismatch') : 'הסיסמאות אינן תואמות', 'error');
         return;
       }
 
@@ -370,7 +370,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const { error } = await Auth.updatePassword(newPassword);
         if (error) throw error;
 
-        showToast('הסיסמה עודכנה בהצלחה!', 'success');
+        showToast(window.i18n ? window.i18n.getTranslation('toast_pass_updated') : 'הסיסמה עודכנה בהצלחה!', 'success');
         document.getElementById('settings-new-password').value = '';
         document.getElementById('settings-confirm-password').value = '';
       } catch (err) {
@@ -420,7 +420,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           if (freshSelect) freshSelect.value = newName;
         }
 
-        showToast('הפרטים האישיים עודכנו בהצלחה!', 'success');
+        showToast(window.i18n ? window.i18n.getTranslation('toast_profile_updated') : 'הפרטים האישיים עודכנו בהצלחה!', 'success');
       } catch (err) {
         console.error('Profile update error:', err);
         showToast('שגיאה בשמירת הפרופיל: ' + err.message, 'error');
@@ -608,7 +608,8 @@ function formatDateOnly(dateStr) {
   const d = new Date(dateStr);
   if (isNaN(d)) return dateStr;
   const pad = (n) => n.toString().padStart(2, "0");
-  const dayName = d.toLocaleDateString("he-IL", { weekday: "long" });
+  const currentLang = localStorage.getItem('pensionet_lang') || 'he';
+  const dayName = d.toLocaleDateString(currentLang === 'en' ? "en-US" : "he-IL", { weekday: "long" });
   return `${pad(d.getDate())}/${pad(
     d.getMonth() + 1
   )}/${d.getFullYear()} (${dayName})`;
@@ -711,13 +712,13 @@ function generateWhatsAppConfirmationLink(row) {
   
   if (isSent) {
     return `<div class="whatsapp-confirm-container" id="confirm-container-${row.id}">
-      <span class="whatsapp-sent-badge">נשלח ✓</span>
+      <span class="whatsapp-sent-badge">${window.i18n ? window.i18n.getTranslation('status_label_sent') : 'נשלח'} ✓</span>
       <button class="whatsapp-reset-btn" data-reset-order="${row.id}" title="אפס סטטוס">↺</button>
     </div>`;
   }
   
   return `<div class="whatsapp-confirm-container" id="confirm-container-${row.id}" data-feature="whatsapp_automation">
-    <a href="${finalUrl}" target="_blank" class="whatsapp-confirm-btn" data-order-id="${row.id}"><span class="icon"><i class="fab fa-whatsapp"></i></span> שלח אישור</a>
+    <a href="${finalUrl}" target="_blank" class="whatsapp-confirm-btn" data-order-id="${row.id}"><span class="icon"><i class="fab fa-whatsapp"></i></span> ${window.i18n ? window.i18n.getTranslation('btn_send_confirm') : 'שלח אישור'}</a>
   </div>`;
 }
 
@@ -730,7 +731,7 @@ async function markConfirmationSent(orderId) {
   // Update UI immediately
   const container = document.getElementById(`confirm-container-${orderId}`);
       container.innerHTML = `
-        <span class="whatsapp-sent-badge">נשלח ✓</span>
+        <span class="whatsapp-sent-badge">${window.i18n ? window.i18n.getTranslation('status_label_sent') : 'נשלח'} ✓</span>
         <button class="whatsapp-reset-btn" data-reset-order="${orderId}" title="אפס סטטוס">↺</button>
       `;
   
@@ -796,7 +797,7 @@ async function checkForAnnouncements(force = false) {
             .maybeSingle();
             
         if (error || !announcement) {
-            if (force) showToast('לא נמצאו עדכונים חדשים כעת.', 'info');
+            if (force) showToast(window.i18n ? window.i18n.getTranslation('no_updates_found') : 'לא נמצאו עדכונים חדשים כעת.', 'info');
             return;
         }
         
@@ -3561,7 +3562,7 @@ document.getElementById('saveNoteBtn')?.addEventListener('click', async function
 
 async function loadSettings() {
   if (window.isDemoMode) {
-    window.businessName = 'פנסיון לדוגמה';
+    window.businessName = window.i18n ? window.i18n.getTranslation('demo_pension_name') : 'פנסיון לדוגמה';
     const titleEl = document.getElementById('header-business-name');
     if (titleEl) titleEl.textContent = window.businessName;
     const holidayToggle = document.getElementById('settings-show-holidays');
@@ -4273,11 +4274,13 @@ async function loadAuditLogs() {
 
     if (window.isDemoMode) {
         const now = Date.now();
+        const currentLang = localStorage.getItem('pensionet_lang') || 'he';
+        const isEn = (currentLang === 'en');
         const demoLogs = [
-            { id: 1, staff_name: 'מנהל דמו', action_type: 'UPDATE', description: 'עדכון סטטוס הזמנה עבור רקס (יוסי כהן) ל"מאושר"', created_at: new Date(now - 120000).toISOString() },
-            { id: 2, staff_name: 'עובד לדוגמה', action_type: 'INSERT', description: 'הזמנה חדשה נוספה: בל (שרה לוי)', created_at: new Date(now - 3600000).toISOString() },
-            { id: 3, staff_name: 'מנהל דמו', action_type: 'UPDATE', description: 'שינוי תאריכי שהייה: סימבה (דני רובס)', created_at: new Date(now - 7200000).toISOString() },
-            { id: 4, staff_name: 'מערכת', action_type: 'UPDATE', description: 'גיבוי אוטומטי בוצע בהצלחה', created_at: new Date(now - 86400000).toISOString() }
+            { id: 1, staff_name: isEn ? 'Demo Manager' : 'מנהל דמו', action_type: 'UPDATE', description: isEn ? 'Updated order status for Rex (Yossi Cohen) to "Approved"' : 'עדכון סטטוס הזמנה עבור רקס (יוסי כהן) ל"מאושר"', created_at: new Date(now - 120000).toISOString() },
+            { id: 2, staff_name: isEn ? 'Sample Employee' : 'עובד לדוגמה', action_type: 'INSERT', description: isEn ? 'New order added: Belle (Sarah Levi)' : 'הזמנה חדשה נוספה: בל (שרה לוי)', created_at: new Date(now - 3600000).toISOString() },
+            { id: 3, staff_name: isEn ? 'Demo Manager' : 'מנהל דמו', action_type: 'UPDATE', description: isEn ? 'Changed stay dates: Simba (Danny Robas)' : 'שינוי תאריכי שהייה: סימבה (דני רובס)', created_at: new Date(now - 7200000).toISOString() },
+            { id: 4, staff_name: isEn ? 'System' : 'מערכת', action_type: 'UPDATE', description: isEn ? 'Automatic backup completed successfully' : 'גיבוי אוטומטי בוצע בהצלחה', created_at: new Date(now - 86400000).toISOString() }
         ];
 
         logsList.innerHTML = demoLogs.map(log => {
@@ -4292,7 +4295,7 @@ async function loadAuditLogs() {
                     <div class="audit-info">
                         <div class="audit-header">
                             <span class="audit-staff">${log.staff_name}</span>
-                            <span class="audit-time">${typeof formatDateTime === 'function' ? formatDateTime(log.created_at) : new Date(log.created_at).toLocaleString('he-IL')}</span>
+                            <span class="audit-time">${typeof formatDateTime === 'function' ? formatDateTime(log.created_at) : new Date(log.created_at).toLocaleString((localStorage.getItem('pensionet_lang') === 'en' ? 'en-US' : 'he-IL'))}</span>
                         </div>
                         <div class="audit-desc">${log.description}</div>
                     </div>
@@ -5849,168 +5852,172 @@ function generateLocalDemoData() {
     // Helper to format date
     const f = (d) => d.toISOString().split('T')[0];
     
-    const termsSuffix = ' ✅ הלקוח/ה אישר/ה תנאי שימוש';
+    // Check current language
+    const currentLang = localStorage.getItem('pensionet_lang') || 'he';
+    const isEn = (currentLang === 'en');
+    
+    const termsSuffix = isEn ? ' ✅ Client approved terms of use' : ' ✅ הלקוח/ה אישר/ה תנאי שימוש';
     
     const demoOrders = [
         // --- TODAY'S MOVEMENTS ---
         {
             id: 'demo-today-in',
             order_date: ft(new Date(today.getTime() - 7 * dayMs), 10, 15),
-            owner_name: 'שרה לוי',
-            dog_name: 'בל',
+            owner_name: isEn ? 'Sarah Levi' : 'שרה לוי',
+            dog_name: isEn ? 'Belle' : 'בל',
             dog_age: '2',
-            dog_breed: 'קטן',
-            neutered: 'כן (מעוקרת)',
-            notes: 'פחדנית מרעשים' + termsSuffix,
+            dog_breed: isEn ? 'Small' : 'קטן',
+            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
+            notes: (isEn ? 'Afraid of noises' : 'פחדנית מרעשים') + termsSuffix,
             phone: '0522222222',
             check_in: f(today),
             check_out: f(new Date(today.getTime() + 5 * dayMs)),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: false,
             is_paid: false,
             price_per_day: 150,
-            addons: [{ name: 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: 'צריכה הרבה יחס'
+            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
+            admin_note: isEn ? 'Needs a lot of attention' : 'צריכה הרבה יחס'
         },
         {
             id: 'demo-today-out',
             order_date: ft(new Date(today.getTime() - 14 * dayMs), 14, 30),
-            owner_name: 'יוסי כהן',
-            dog_name: 'רקס',
+            owner_name: isEn ? 'Yossi Cohen' : 'יוסי כהן',
+            dog_name: isEn ? 'Rex' : 'רקס',
             dog_age: '4',
-            dog_breed: 'גדול',
-            neutered: 'כן (מסורס)',
-            notes: 'אוכל פעמיים ביום' + termsSuffix,
+            dog_breed: isEn ? 'Large' : 'גדול',
+            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
+            notes: (isEn ? 'Eats twice a day' : 'אוכל פעמיים ביום') + termsSuffix,
             phone: '0501111111',
             check_in: f(new Date(today.getTime() - 5 * dayMs)),
             check_out: f(today),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: true,
             is_paid: true,
             price_per_day: 130,
-            addons: [{ name: 'טיול ארוך', price: 30 }],
-            admin_note: 'בחדר גדול'
+            addons: [{ name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }],
+            admin_note: isEn ? 'In large room' : 'בחדר גדול'
         },
         // --- ACTIVE / STAYING ---
         {
             id: 'demo-stay-1',
             order_date: ft(new Date(today.getTime() - 10 * dayMs), 11, 45),
-            owner_name: 'דני רובס',
-            dog_name: 'סימבה',
+            owner_name: isEn ? 'Danny Robas' : 'דני רובס',
+            dog_name: isEn ? 'Simba' : 'סימבה',
             dog_age: '6',
-            dog_breed: 'בינוני',
-            neutered: 'כן (מסורס)',
-            notes: 'אוהב כדורים' + termsSuffix,
+            dog_breed: isEn ? 'Medium' : 'בינוני',
+            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
+            notes: (isEn ? 'Loves balls' : 'אוהב כדורים') + termsSuffix,
             phone: '0543333333',
             check_in: f(new Date(today.getTime() - 3 * dayMs)),
             check_out: f(new Date(today.getTime() + 4 * dayMs)),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: true,
             is_paid: true,
             price_per_day: 140,
             addons: [
-                { name: 'טיול ארוך', price: 30 }
+                { name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }
             ],
-            admin_note: 'לקוח VIP'
+            admin_note: isEn ? 'VIP Customer' : 'לקוח VIP'
         },
         // --- FUTURE ---
         {
             id: 'demo-future-1',
             order_date: ft(new Date(today.getTime() - 2 * dayMs), 9, 20),
-            owner_name: 'מיכל ירון',
-            dog_name: 'צ׳ארלי',
+            owner_name: isEn ? 'Michal Yaron' : 'מיכל ירון',
+            dog_name: isEn ? 'Charlie' : 'צ׳ארלי',
             dog_age: '1',
-            dog_breed: 'קטן',
-            neutered: 'לא',
-            notes: 'גור אנרגטי' + termsSuffix,
+            dog_breed: isEn ? 'Small' : 'קטן',
+            neutered: isEn ? 'No' : 'לא',
+            notes: (isEn ? 'Energetic puppy' : 'גור אנרגטי') + termsSuffix,
             phone: '0504444444',
             check_in: f(new Date(today.getTime() + 2 * dayMs)),
             check_out: f(new Date(today.getTime() + 8 * dayMs)),
-            status: 'ממתין',
+            status: isEn ? 'Pending' : 'ממתין',
             is_arrived: false,
             is_paid: false,
             price_per_day: 140,
-            addons: [{ name: 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: 'להוציא הרבה לחצר'
+            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
+            admin_note: isEn ? 'Take out to the yard often' : 'להוציא הרבה לחצר'
         },
         {
             id: 'demo-future-2',
             order_date: ft(new Date(today.getTime() - 1 * dayMs), 16, 10),
-            owner_name: 'אביב גפן',
-            dog_name: 'לוקה',
+            owner_name: isEn ? 'Aviv Geffen' : 'אביב גפן',
+            dog_name: isEn ? 'Luca' : 'לוקה',
             dog_age: '8',
-            dog_breed: 'גדול',
-            neutered: 'כן (מעוקרת)',
-            notes: 'כלב מבוגר ושקט' + termsSuffix,
+            dog_breed: isEn ? 'Large' : 'גדול',
+            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
+            notes: (isEn ? 'Old and quiet dog' : 'כלב מבוגר ושקט') + termsSuffix,
             phone: '0525555555',
             check_in: f(new Date(today.getTime() + 10 * dayMs)),
             check_out: f(new Date(today.getTime() + 15 * dayMs)),
-            status: 'ממתין',
+            status: isEn ? 'Pending' : 'ממתין',
             is_arrived: false,
             is_paid: false,
             price_per_day: 130,
             addons: [
-                { name: 'טיול ארוך', price: 30 }
+                { name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }
             ],
-            admin_note: 'תרופות בבוקר'
+            admin_note: isEn ? 'Morning medications' : 'תרופות בבוקר'
         },
         {
             id: 'demo-future-3',
             order_date: ft(new Date(today.getTime() - 4 * dayMs), 18, 55),
-            owner_name: 'נועה קירל',
-            dog_name: 'ביגי',
+            owner_name: isEn ? 'Noa Kirel' : 'נועה קירל',
+            dog_name: isEn ? 'Biggie' : 'ביגי',
             dog_age: '3',
-            dog_breed: 'בינוני',
-            neutered: 'כן (מסורס)',
-            notes: 'אוהב לשחק' + termsSuffix,
+            dog_breed: isEn ? 'Medium' : 'בינוני',
+            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
+            notes: (isEn ? 'Loves to play' : 'אוהב לשחק') + termsSuffix,
             phone: '0546666666',
             check_in: f(new Date(today.getTime() + 15 * dayMs)),
             check_out: f(new Date(today.getTime() + 20 * dayMs)),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: false,
             is_paid: true,
             price_per_day: 140,
-            addons: [{ name: 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: 'לקוחה מפורסמת'
+            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
+            admin_note: isEn ? 'Famous customer' : 'לקוחה מפורסמת'
         },
         // --- HISTORY ---
         {
             id: 'demo-history-1',
             order_date: ft(new Date(today.getTime() - 45 * dayMs), 12, 5),
-            owner_name: 'רון שחר',
-            dog_name: 'מקס',
+            owner_name: isEn ? 'Ron Shahar' : 'רון שחר',
+            dog_name: isEn ? 'Max' : 'מקס',
             dog_age: '7',
-            dog_breed: 'בינוני',
-            neutered: 'לא',
-            notes: 'דומיננטי' + termsSuffix,
+            dog_breed: isEn ? 'Medium' : 'בינוני',
+            neutered: isEn ? 'No' : 'לא',
+            notes: (isEn ? 'Dominant' : 'דומיננטי') + termsSuffix,
             phone: '0525555555',
             check_in: f(new Date(today.getTime() - 40 * dayMs)),
             check_out: f(new Date(today.getTime() - 35 * dayMs)),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: true,
             is_departed: true,
             is_paid: true,
             price_per_day: 140,
-            admin_note: 'להפריד מאחרים'
+            admin_note: isEn ? 'Separate from others' : 'להפריד מאחרים'
         },
         {
             id: 'demo-history-2',
             order_date: ft(new Date(today.getTime() - 60 * dayMs), 8, 40),
-            owner_name: 'מיכל אברהם',
-            dog_name: 'בוני',
+            owner_name: isEn ? 'Michal Avraham' : 'מיכל אברהם',
+            dog_name: isEn ? 'Bonnie' : 'בוני',
             dog_age: '5',
-            dog_breed: 'קטן',
-            neutered: 'כן (מעוקרת)',
-            notes: 'זקוק לסירוק יומי' + termsSuffix,
+            dog_breed: isEn ? 'Small' : 'קטן',
+            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
+            notes: (isEn ? 'Needs daily brushing' : 'זקוק לסירוק יומי') + termsSuffix,
             phone: '0504444444',
             check_in: f(new Date(today.getTime() - 55 * dayMs)),
             check_out: f(new Date(today.getTime() - 50 * dayMs)),
-            status: 'מאושר',
+            status: isEn ? 'Approved' : 'מאושר',
             is_arrived: true,
             is_departed: true,
             is_paid: true,
             price_per_day: 120,
-            admin_note: 'כלב חמוד מאוד'
+            admin_note: isEn ? 'Very cute dog' : 'כלב חמוד מאוד'
         }
     ];
     return demoOrders;

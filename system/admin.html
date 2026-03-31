@@ -2,7 +2,7 @@
 <html lang="he">
   <head>
     <meta charset="UTF-8" />
-    <title>ניהול פנסיון כלבים</title>
+    <title data-i18n="head_title">ניהול פנסיון כלבים</title>
     <link rel="icon" href="favicon.png" type="image/png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
@@ -88,7 +88,7 @@
     <!-- Login/Profile Selection Overlay -->
     <div id="login-overlay" style="display: flex !important;">
       <div class="profile-card" style="position: relative;">
-        <button onclick="closeProfileOverlay()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'" title="סגור">×</button>
+        <button onclick="closeProfileOverlay()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 0; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'" data-i18n="close">×</button>
         <div class="logo-wrapper" style="margin-bottom: 10px;">
           <div class="pensionet-icon">
             <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -98,16 +98,16 @@
               <circle cx="16.5" cy="7" r="2" />
             </svg>
           </div>
-          <h2 class="logo-text" style="font-size: 28px; color: #1e293b; margin: 0;">פנסיונט</h2>
+          <h2 class="logo-text" style="font-size: 28px; color: #1e293b; margin: 0;" data-i18n="pensionet_logo">Pensionet</h2>
         </div>
-        <p style="margin-bottom: 25px; color: #64748b;">יש לבחור פרופיל לשימוש במערכת</p>
+        <p style="margin-bottom: 25px; color: #64748b;" data-i18n="profile_select_title">יש לבחור פרופיל לשימוש במערכת</p>
         <select id="initialProfileSelect" onchange="handleInitialProfileChange()">
-          <option value="">בחר פרופיל...</option>
+          <option value="" data-i18n="select_profile">בחר פרופיל...</option>
         </select>
-        <div style="font-size: 13px; color: #94a3b8;">הגישה למערכת מורשית לצוות בלבד</div>
+        <div style="font-size: 13px; color: #94a3b8;" data-i18n="staff_access_only">הגישה למערכת מורשית לצוות בלבד</div>
         <div style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
           <button type="button" onclick="logout()" style="background:none; border:none; color:#ef4444; font-size:14px; cursor:pointer; font-weight:500; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
-            <i class="fas fa-sign-out-alt"></i> יציאה מהחשבון
+            <i class="fas fa-sign-out-alt"></i> <span data-i18n="logout_account">יציאה מהחשבון</span>
           </button>
         </div>
       </div>
@@ -133,15 +133,15 @@
               <circle cx="16.5" cy="7" r="2" />
             </svg>
           </div>
-          <h1 style="margin: 0; font-size: 22px;">מערכת ניהול פנסיון כלבים</h1>
+          <h1 style="margin: 0; font-size: 22px;" data-i18n="system_title">מערכת ניהול פנסיון כלבים</h1>
         </div>
           <div id="header-business-name" class="header-subtitle"></div>
           <div id="userPlanBadgeContainer" style="margin-top: 4px;"></div>
           <div class="mode-indicator" id="modeToggleContainer">
-            <span id="modeStatusLabel" class="mode-badge staff"><i class="fas fa-lock"></i> מצב עובד</span>
+            <span id="modeStatusLabel" class="mode-badge staff"><i class="fas fa-lock"></i> <span data-i18n="mode_staff">מצב עובד</span></span>
             <div id="activeStaffSelectorContainer" style="display: none; align-items: center; gap: 8px; padding-right: 8px;">
               <select id="activeStaffSelect" onchange="handleActiveStaffChange()" style="font-size: 12px; border: none; background: #f8fafc; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-                <option value="צוות">זהות עובד/ת...</option>
+                <option value="צוות" data-i18n="login_as_staff">זהות עובד/ת...</option>
               </select>
             </div>
           </div>
@@ -368,7 +368,7 @@
           <p style="color: #64748b; margin-bottom: 20px;" data-i18n="audit_desc">תיעוד בזמן אמת של כל הפעולות שבוצעו במערכת על ידי הצוות והמנהל</p>
           <div id="auditLogsList" class="audit-logs-list">
               <!-- Logs will be loaded here -->
-              <div style="padding: 40px; text-align: center; color: #94a3b8;">
+              <div style="padding: 40px; text-align: center; color: #94a3b8;" data-i18n="audit_loading">
                 טוען יומן פעולות...
               </div>
           </div>
@@ -668,8 +668,8 @@
 
       <footer style="margin-top: 50px; padding: 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
           <p style="margin: 0; color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500;">
-              <span style="opacity: 0.8;">מבית</span>
-              <a href="https://shaharsolutions.github.io/shahardigitalsolutions/" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: 800; border-bottom: 1.5px solid rgba(255, 255, 255, 0.4); padding-bottom: 2px; transition: all 0.3s ease; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">שחר פתרונות דיגיטליים</a>
+              <span style="opacity: 0.8;" data-i18n="made_by">מבית</span>
+              <a href="https://shaharsolutions.github.io/shahardigitalsolutions/" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: 800; border-bottom: 1.5px solid rgba(255, 255, 255, 0.4); padding-bottom: 2px; transition: all 0.3s ease; text-shadow: 0 2px 4px rgba(0,0,0,0.1);" data-i18n="brand_name">שחר פתרונות דיגיטליים</a>
           </p>
       </footer>
     </div>
@@ -704,11 +704,11 @@
     <!-- Generic Confirmation Modal -->
     <div id="confirmModal" class="modal">
       <div class="modal-content" style="max-width: 400px; text-align: center; padding: 25px;">
-        <h3 id="confirmTitle" style="margin-bottom: 15px; color: #1e293b;">אישור פעולה</h3>
+        <h3 id="confirmTitle" style="margin-bottom: 15px; color: #1e293b;" data-i18n="confirm_title">אישור פעולה</h3>
         <p id="confirmMessage" style="margin-bottom: 25px; color: #64748b; line-height: 1.6;"></p>
         <div style="display: flex; gap: 12px; justify-content: center;">
-          <button id="confirmCancelBtn" class="header-btn" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 20px;">ביטול</button>
-          <button id="confirmConfirmBtn" class="header-btn" style="background: #6366f1; color: white; border: none; padding: 10px 20px;">אישור</button>
+          <button id="confirmCancelBtn" class="header-btn" style="background: #f1f5f9; color: #64748b; border: none; padding: 10px 20px;" data-i18n="btn_cancel">ביטול</button>
+          <button id="confirmConfirmBtn" class="header-btn" style="background: #6366f1; color: white; border: none; padding: 10px 20px;" data-i18n="btn_confirm">אישור</button>
         </div>
       </div>
     </div>
@@ -717,9 +717,9 @@
     <div id="pinModal" class="modal">
       <div class="modal-content" style="max-width: 350px; text-align: center; padding: 25px;">
         <div class="modal-header" style="justify-content: center; border-bottom: none; margin-bottom: 20px;">
-          <h3 style="font-size: 20px;"><i class="fas fa-lock" style="color: #6366f1;"></i> אימות מנהל</h3>
+          <h3 style="font-size: 20px;"><i class="fas fa-lock" style="color: #6366f1;"></i> <span data-i18n="admin_verify">אימות מנהל</span></h3>
         </div>
-        <p style="margin-bottom: 20px; color: #64748b; font-weight: 500;">נא להזין סיסמה לביצוע הפעולה</p>
+        <p style="margin-bottom: 20px; color: #64748b; font-weight: 500;" data-i18n="enter_pass_to_continue">נא להזין סיסמה לביצוע הפעולה</p>
         <div style="margin-bottom: 20px;">
           <input type="password" id="pinInput" placeholder="הזן סיסמה..." 
                  style="text-align: center; font-size: 18px; letter-spacing: 1px; width: 100%; 
@@ -727,8 +727,8 @@
         </div>
         <div id="pinError" style="color: #ef4444; font-size: 14px; margin-bottom: 20px; min-height: 20px; font-weight: 600;"></div>
         <div style="display: flex; gap: 12px;">
-          <button id="pinCancelBtn" class="btn" style="flex: 1; background: #f1f5f9; color: #64748b; padding: 12px; border-radius: 10px; font-weight: 600;">ביטול</button>
-          <button id="pinConfirmBtn" class="btn" style="flex: 1; background: #6366f1; color: white; padding: 12px; border-radius: 10px; font-weight: 600;">אישור</button>
+          <button id="pinCancelBtn" class="btn" style="flex: 1; background: #f1f5f9; color: #64748b; padding: 12px; border-radius: 10px; font-weight: 600;" data-i18n="btn_cancel">ביטול</button>
+          <button id="pinConfirmBtn" class="btn" style="flex: 1; background: #6366f1; color: white; padding: 12px; border-radius: 10px; font-weight: 600;" data-i18n="pension_btn_confirm">אישור</button>
         </div>
       </div>
     </div>
@@ -739,7 +739,7 @@
         <i class="fas fa-times"></i>
       </button>
       <button id="previewModalChangeBtn" style="position: fixed; top: 20px; left: 80px; background: rgba(99, 102, 241, 0.9); border: none; color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; font-weight: 700; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; z-index: 30001; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: inherit;" onmouseover="this.style.transform='scale(1.05)'; this.style.background='#6366f1';" onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(99, 102, 241, 0.9)';">
-        <i class="fas fa-camera"></i> שינוי תמונה
+        <i class="fas fa-camera"></i> <span data-i18n="change_image">שינוי תמונה</span>
       </button>
       <div class="modal-content" style="max-width: 90%; max-height: 80vh; background: transparent; box-shadow: none; border: none; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
         <img id="previewModalImg" src="" style="max-width: 100%; max-height: 70vh; border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
@@ -814,8 +814,8 @@
               <i class="fas fa-user-edit" style="color: white; font-size: 18px;"></i>
             </div>
             <div>
-              <h3 style="color: white; margin: 0; font-size: 18px; font-weight: 700;">עריכת פרטי לקוח</h3>
-              <p id="editClientSubtitle" style="color: rgba(255,255,255,0.8); margin: 2px 0 0; font-size: 12px;">עדכון נתונים</p>
+              <h3 style="color: white; margin: 0; font-size: 18px; font-weight: 700;" data-i18n="edit_client_title">עריכת פרטי לקוח</h3>
+              <p id="editClientSubtitle" style="color: rgba(255,255,255,0.8); margin: 2px 0 0; font-size: 12px;" data-i18n="edit_client_subtitle">עדכון נתונים</p>
             </div>
           </div>
           <span class="close-modal" onclick="closeEditClientModal()" style="color: rgba(255,255,255,0.7); font-size: 26px; cursor: pointer; transition: color 0.2s; line-height: 1;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.7)'">&times;</span>
@@ -828,15 +828,15 @@
           
           <!-- Name -->
           <div style="margin-bottom: 16px;">
-            <label for="editClientName" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-user" style="width: 16px; color: #6366f1;"></i> שם הלקוח</label>
-            <input type="text" id="editClientName" placeholder="שם מלא"
+            <label for="editClientName" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-user" style="width: 16px; color: #6366f1;"></i> <span data-i18n="client_name">שם הלקוח</span></label>
+            <input type="text" id="editClientName" placeholder="שם מלא" data-i18n="full_name"
                    style="width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: border-color 0.2s; outline: none; box-sizing: border-box;"
                    onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
           </div>
 
           <!-- Phone -->
           <div style="margin-bottom: 16px;">
-            <label for="editClientPhone" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-phone" style="width: 16px; color: #6366f1;"></i> טלפון</label>
+            <label for="editClientPhone" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-phone" style="width: 16px; color: #6366f1;"></i> <span data-i18n="col_phone">טלפון</span></label>
             <input type="tel" id="editClientPhone" placeholder="050-1234567" dir="ltr"
                    style="width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: border-color 0.2s; outline: none; box-sizing: border-box; text-align: left;"
                    onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
@@ -845,7 +845,7 @@
           <!-- City + Price Row -->
           <div style="display: flex; gap: 12px; margin-bottom: 16px;">
             <div style="flex: 1;">
-              <label for="editClientCity" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-map-marker-alt" style="width: 16px; color: #6366f1;"></i> עיר מגורים</label>
+              <label for="editClientCity" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-map-marker-alt" style="width: 16px; color: #6366f1;"></i> <span data-i18n="city">עיר מגורים</span></label>
               <input type="text" id="editClientCity" placeholder="למשל: תל אביב"
                      style="width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: border-color 0.2s; outline: none; box-sizing: border-box;"
                      onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
@@ -860,7 +860,7 @@
 
           <!-- Notes -->
           <div style="margin-bottom: 20px;">
-            <label for="editClientNotes" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-sticky-note" style="width: 16px; color: #6366f1;"></i> הערות כלליות על הלקוח</label>
+            <label for="editClientNotes" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;"><i class="fas fa-sticky-note" style="width: 16px; color: #6366f1;"></i> <span data-i18n="general_notes">הערות כלליות על הלקוח</span></label>
             <textarea id="editClientNotes" placeholder="הערות כלליות (העדפות, דגשים מיוחדים, וכו')" rows="3"
                       style="width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: border-color 0.2s; outline: none; box-sizing: border-box; resize: vertical; font-family: inherit;"
                       onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
@@ -868,7 +868,7 @@
 
           <!-- Dogs Section -->
           <div style="margin-bottom: 20px; background: #f8fafc; border-radius: 12px; padding: 14px; border: 1px solid #e2e8f0;">
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;"><i class="fas fa-paw" style="width: 16px; color: #f59e0b;"></i> כלבים משויכים (עריכה ומחיקה)</label>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;"><i class="fas fa-paw" style="width: 16px; color: #f59e0b;"></i> <span data-i18n="associated_dogs">כלבים משויכים (עריכה ומחיקה)</span></label>
             <div id="editClientDogsList" style="display: flex; flex-direction: column; gap: 8px;">
               <!-- Dogs rows will be populated by JS -->
             </div>
@@ -876,7 +876,7 @@
 
           <!-- Order Notes History -->
           <div style="margin-bottom: 20px; background: #fffbeb; border-radius: 12px; padding: 14px; border: 1px solid #fde68a;">
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 8px;"><i class="fas fa-history" style="width: 16px; color: #d97706;"></i> היסטוריית הערות מנהל מהזמנות</label>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #92400e; margin-bottom: 8px;"><i class="fas fa-history" style="width: 16px; color: #d97706;"></i> <span data-i18n="order_notes_history">היסטוריית הערות מנהל מהזמנות</span></label>
             <div id="editClientOrderNotesHistory" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
               <!-- History will be populated by JS -->
             </div>
@@ -885,7 +885,7 @@
           <!-- Action Buttons -->
           <div style="display: flex; gap: 10px;">
             <button type="button" onclick="closeEditClientModal()" style="flex: 1; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: white; color: #64748b; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
-                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">ביטול</button>
+                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'" data-i18n="btn_cancel">ביטול</button>
             <button type="button" id="saveEditClientBtn" onclick="saveEditClient()" style="flex: 2; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
                     onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" data-i18n="save_changes">
               <i class="fas fa-save"></i> שמור שינויים
@@ -906,8 +906,8 @@
               <i class="fas fa-calendar-plus" style="color: #475569; font-size: 18px;"></i>
             </div>
             <div>
-              <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 700;">הוספת אירוע</h3>
-              <p style="color: #64748b; margin: 2px 0 0; font-size: 12px;">יופיע על לוח השנה החודשי</p>
+              <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 700;" data-i18n="edit_event">הוספת אירוע</h3>
+              <p style="color: #64748b; margin: 2px 0 0; font-size: 12px;" data-i18n="event_on_calendar">יופיע על לוח השנה החודשי</p>
             </div>
           </div>
           <span class="close-modal" onclick="closeCustomEventModal()" style="color: #94a3b8; font-size: 18px; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</span>
@@ -918,7 +918,7 @@
           
           <!-- Event Name -->
           <div style="margin-bottom: 16px;">
-            <label for="eventName" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">שם האירוע</label>
+            <label for="eventName" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;" data-i18n="event_name">שם האירוע</label>
             <input type="text" id="eventName" required placeholder="למשל: סגור לשיפוצים, חופשה משפחתית" 
                    style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; outline: none; box-sizing: border-box;"
                    onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
@@ -927,13 +927,13 @@
           <!-- Date Row -->
           <div style="display: flex; gap: 12px; margin-bottom: 16px;">
             <div style="flex: 1;">
-              <label for="eventStartDate" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">תאריך התחלה</label>
+              <label for="eventStartDate" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;" data-i18n="start_date">תאריך התחלה</label>
               <input type="text" id="eventStartDate" class="date-input" required readonly
                      style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; cursor: pointer; transition: border-color 0.2s; outline: none; box-sizing: border-box;"
                      onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
             </div>
             <div style="flex: 1;">
-              <label for="eventEndDate" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">תאריך סיום</label>
+              <label for="eventEndDate" style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;" data-i18n="end_date">תאריך סיום</label>
               <input type="text" id="eventEndDate" class="date-input" required readonly
                      style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; cursor: pointer; transition: border-color 0.2s; outline: none; box-sizing: border-box;"
                      onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
@@ -942,7 +942,7 @@
 
           <!-- Color Picker -->
           <div style="margin-bottom: 24px;">
-            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;">צבע בלוח השנה</label>
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px;" data-i18n="calendar_color">צבע בלוח השנה</label>
             <div id="eventColorSwatches" style="display: flex; gap: 8px; flex-wrap: wrap;">
               <div class="color-swatch" data-color="#ef4444" onclick="selectEventColor(this)" style="width: 32px; height: 32px; border-radius: 8px; background: #ef4444; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; display: flex; align-items: center; justify-content: center;"></div>
               <div class="color-swatch" data-color="#f59e0b" onclick="selectEventColor(this)" style="width: 32px; height: 32px; border-radius: 8px; background: #f59e0b; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; display: flex; align-items: center; justify-content: center;"></div>
@@ -957,8 +957,8 @@
           <!-- Submit Button -->
           <div style="display: flex; gap: 10px;">
             <button type="button" class="header-btn" onclick="closeCustomEventModal()" style="flex: 1; background: #f1f5f9; color: #475569; padding: 12px; border-radius: 8px; border: none; font-weight: 600;">ביטול</button>
-            <button type="submit" style="flex: 2; padding: 12px; border: none; border-radius: 8px; background: #2563eb; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
-                    onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            <button id="addEventBtn" type="submit" style="flex: 2; padding: 12px; border: none; border-radius: 8px; background: #2563eb; color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                    onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'" data-i18n="add_to_calendar">
               <i class="fas fa-plus"></i> הוסף אירוע לחלונית
             </button>
           </div>
