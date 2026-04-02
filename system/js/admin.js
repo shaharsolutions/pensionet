@@ -2321,6 +2321,91 @@ function filterFutureOrdersData() {
   return data;
 }
 
+async function handleStatusBtnClick(orderId, newStatus, btn) {
+    const group = btn.closest('.status-btn-group');
+    if (!group) return;
+    
+    const oldStatus = group.dataset.status;
+    if (oldStatus === newStatus) return;
+
+    // Custom Modal logic for cancellation reason
+    if (newStatus === 'בוטל') {
+        const row = btn.closest('tr');
+        const dogNameElement = row ? row.querySelector('td[data-label="כלב"] span') : null;
+        const dogName = dogNameElement ? dogNameElement.textContent : 'הכלב';
+        
+        const modal = document.getElementById('cancelReasonModal');
+        const dogNameSpan = document.getElementById('cancelDogName');
+        const input = document.getElementById('cancelReasonInput');
+        const confirmBtn = document.getElementById('confirmCancelReasonBtn');
+        
+        if (modal && dogNameSpan && input && confirmBtn) {
+            dogNameSpan.textContent = dogName;
+            modal.style.display = 'flex';
+            input.focus();
+            
+            confirmBtn.onclick = async () => {
+                const reason = input.value.trim();
+                const order = (window.allOrdersCache || []).find(o => String(o.id) === String(orderId));
+                
+                if (reason && order) {
+                    try {
+                        const activeStaffName = document.getElementById('activeStaffSelect')?.value || 'מנהל';
+                        let notes = [{
+                          content: `סיבת ביטול: ${reason}`,
+                          author: activeStaffName === 'צוות' ? 'מנהל' : activeStaffName,
+                          timestamp: new Date().toISOString()
+                        }];
+                        
+                        // Update in Supabase immediately for notes
+                        const { error } = await pensionetSupabase
+                          .from('orders')
+                          .update({ admin_note: JSON.stringify(notes) + (order.admin_note?.includes('(DEMO_DATA)') ? ' (DEMO_DATA)' : '') })
+                          .eq('id', orderId);
+
+                        if (!error) {
+                          order.admin_note = JSON.stringify(notes) + (order.admin_note?.includes('(DEMO_DATA)') ? ' (DEMO_DATA)' : '');
+                          showToast('סיבת הביטול נשמרה בהערות', 'success');
+                          const noteBtn = row.querySelector('.view-notes-btn');
+                          if (noteBtn) {
+                              const noteCount = safeParseNotes(order.admin_note).length;
+                              noteBtn.innerHTML = `<i class="fas fa-comments"></i> הערות (${noteCount})`;
+                          }
+                        }
+                    } catch (err) {
+                        console.error('Error adding cancellation reason:', err);
+                    }
+                }
+
+                // Proceed with status change
+                group.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                group.dataset.status = newStatus;
+                if (order) order.status = newStatus;
+                
+                closeCancelReasonModal();
+            };
+        }
+        return;
+    }
+
+    // Normal non-cancellation update
+    group.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    group.dataset.status = newStatus;
+    
+    // Update cache
+    const order = (window.allOrdersCache || []).find(o => String(o.id) === String(orderId));
+    if (order) order.status = newStatus;
+}
+
+function closeCancelReasonModal() {
+    const modal = document.getElementById('cancelReasonModal');
+    if (modal) modal.style.display = 'none';
+    const input = document.getElementById('cancelReasonInput');
+    if (input) input.value = '';
+}
+
 function renderFutureOrdersTable() {
   const futureTbody = document.querySelector("#futureOrdersTable tbody");
   if (!futureTbody) return;
@@ -2420,23 +2505,11 @@ function renderFutureOrdersTable() {
       <td data-label="סהכ שהייה" style="font-weight: 600;">${formatNumber(totalPrice)}₪</td>
       <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
       <td data-label="סטטוס">
-        <select data-id="${row.id}" ${statusDisabled} class="status-select ${
-        row.status === "מאושר"
-          ? "status-approved"
-          : row.status === "בוטל"
-          ? "status-cancelled"
-          : ""
-      }">
-          <option value="ממתין" ${
-            row.status === "ממתין" ? "selected" : ""
-          }>ממתין</option>
-          <option value="מאושר" ${
-            row.status === "מאושר" ? "selected" : ""
-          }>מאושר</option>
-          <option value="בוטל" ${
-            row.status === "בוטל" ? "selected" : ""
-          }>בוטל</option>
-        </select>
+        <div class="status-btn-group ${statusDisabled ? 'disabled' : ''}" data-id="${row.id}" data-status="${row.status}">
+          <button type="button" class="status-btn ${row.status === 'ממתין' ? 'active' : ''}" data-value="ממתין" onclick="handleStatusBtnClick('${row.id}', 'ממתין', this)">ממתין</button>
+          <button type="button" class="status-btn ${row.status === 'מאושר' ? 'active' : ''}" data-value="מאושר" onclick="handleStatusBtnClick('${row.id}', 'מאושר', this)">מאושר</button>
+          <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
+        </div>
       </td>
       <td data-label="ניהול" class="manager-note-column">
         <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
@@ -2474,55 +2547,7 @@ function renderFutureOrdersTable() {
         });
       });
 
-    // Handle status change to 'בוטל' - prompt for reason
-    document.querySelectorAll('#futureOrdersTable .status-select').forEach(select => {
-      select.addEventListener('change', async function() {
-        if (this.value === 'בוטל') {
-          const orderId = this.dataset.id;
-          const dogName = this.closest('tr').querySelector('td[data-label="כלב"]')?.textContent || 'הכלב';
-          
-          const reason = prompt(`מהי סיבת הביטול עבור ${dogName}?`);
-          if (reason) {
-            try {
-              // Replace ALL notes with ONLY the cancellation reason for cancelled orders
-              const order = window.allOrdersCache.find(o => String(o.id) === String(orderId));
-              if (order) {
-                const activeStaffName = document.getElementById('activeStaffSelect')?.value || 'מנהל';
-                let notes = [{
-                  content: `סיבת ביטול: ${reason}`,
-                  author: activeStaffName === 'צוות' ? 'מנהל' : activeStaffName,
-                  timestamp: new Date().toISOString()
-                }];
-                
-                // Update in Supabase immediately for notes
-                const { error } = await pensionetSupabase
-                  .from('orders')
-                  .update({ admin_note: JSON.stringify(notes) + (order.admin_note?.includes('(DEMO_DATA)') ? ' (DEMO_DATA)' : '') })
-                  .eq('id', orderId);
-
-                if (!error) {
-                  order.admin_note = JSON.stringify(notes) + (order.admin_note?.includes('(DEMO_DATA)') ? ' (DEMO_DATA)' : '');
-                  showToast('סיבת הביטול נשמרה בהערות', 'success');
-                  // Update the note count in the button
-                  const noteBtn = this.closest('tr').querySelector('.view-notes-btn');
-                  if (noteBtn) noteBtn.innerHTML = `<i class="fas fa-comments"></i> הערות (${notes.length})`;
-                }
-              }
-            } catch (err) {
-              console.error('Error adding cancellation reason:', err);
-            }
-          }
-        }
-      });
-    });
-    // Handle status color classes
-    document.querySelectorAll('#futureOrdersTable .status-select').forEach(select => {
-      select.addEventListener('change', function() {
-        this.classList.remove('status-approved', 'status-cancelled');
-        if (this.value === 'מאושר') this.classList.add('status-approved');
-        if (this.value === 'בוטל') this.classList.add('status-cancelled');
-      });
-    });
+    /* Previous status-select logic removed as it's now handled by handleStatusBtnClick or remains for past orders only */
 
     initFlatpickr();
     if (typeof Features !== 'undefined') Features.syncUI();
@@ -2579,7 +2604,8 @@ document
         if (!id) continue;
 
         const select = row.querySelector("select");
-        const status = select?.value;
+        const statusBtnGroup = row.querySelector(".status-btn-group");
+        const status = statusBtnGroup ? statusBtnGroup.dataset.status : (select?.value || "");
         const adminNote = row.querySelector("textarea.admin-note")?.value;
         const pricePerDay = row.querySelector(".price-input")?.value;
         const daysInput = row.querySelector(".days-input");

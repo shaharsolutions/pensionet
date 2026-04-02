@@ -1148,6 +1148,61 @@ textarea.admin-note:focus {
   font-size: 13px;
 }
 
+/* Status Button Group styles */
+.status-btn-group {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  border: 1px solid var(--border-color);
+  direction: rtl;
+}
+
+.status-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #64748b;
+  white-space: nowrap;
+  outline: none;
+}
+
+.status-btn.active[data-value="ממתין"] {
+  background: white;
+  color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.status-btn.active[data-value="מאושר"] {
+  background: white;
+  color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.status-btn.active[data-value="בוטל"] {
+  background: white;
+  color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.status-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.8);
+  color: #1e293b;
+}
+
+.status-btn-group.disabled {
+  opacity: 0.5;
+  pointer-events: none !important;
+  filter: grayscale(0.8);
+}
+
+
 .status-cancelled {
   color: #dc2626;
   font-weight: 600;
