@@ -598,7 +598,9 @@ function formatDateTime(dateStr) {
   const d = new Date(dateStr);
   if (isNaN(d)) return dateStr;
   const pad = (n) => n.toString().padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getDate())}/${pad(
+    d.getMonth() + 1
+  )}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function formatDateOnly(dateStr) {
@@ -607,26 +609,20 @@ function formatDateOnly(dateStr) {
   if (isNaN(d)) return dateStr;
   const pad = (n) => n.toString().padStart(2, "0");
   const currentLang = localStorage.getItem('pensionet_lang') || 'he';
-  // Use a shorter format for combined table cells
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-}
-
-function formatDateWithDay(dateStr) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  if (isNaN(d)) return dateStr;
-  const pad = (n) => n.toString().padStart(2, "0");
-  const currentLang = localStorage.getItem('pensionet_lang') || 'he';
   const dayName = d.toLocaleDateString(currentLang === 'en' ? "en-US" : "he-IL", { weekday: "long" });
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} (${dayName})`;
+  return `${pad(d.getDate())}/${pad(
+    d.getMonth() + 1
+  )}/${d.getFullYear()} (${dayName})`;
 }
 
 function formatDateForInput(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
-  if (isNaN(d)) return dateStr;
-  const pad = (n) => n.toString().padStart(2, "0");
-  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+  if (isNaN(d)) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function formatPhoneForWhatsApp(phone) {
@@ -1786,67 +1782,128 @@ function renderPastOrdersTable() {
 
   if (window.pastOrdersCurrentPage > maxPage)
     window.pastOrdersCurrentPage = maxPage;
+  if (window.pastOrdersCurrentPage < 1) window.pastOrdersCurrentPage = 1;
 
-  const startIdx = (window.pastOrdersCurrentPage - 1) * HISTORY_ROWS_PER_PAGE;
-  const endIdx = startIdx + HISTORY_ROWS_PER_PAGE;
-  const pageData = filtered.slice(startIdx, endIdx);
+  const startIdx =
+    (window.pastOrdersCurrentPage - 1) * HISTORY_ROWS_PER_PAGE;
+  const pageRows = filtered.slice(
+    startIdx,
+    startIdx + HISTORY_ROWS_PER_PAGE
+  );
 
-  pageData.forEach((row) => {
+  pageRows.forEach((row) => {
     let tr = document.createElement("tr");
+    const days = calculateDays(row.check_in, row.check_out);
+    const pricePerDay = row.price_per_day || 130;
+    const totalPrice = days * pricePerDay;
+
+    // Calculate permissions
+    const activeStaffName = document.getElementById('activeStaffSelect')?.value;
+    const activeStaff = window.currentStaffMembers.find(s => (typeof s === 'string' ? s : s.name) === activeStaffName);
+    const perms = (activeStaff && typeof activeStaff === 'object') ? activeStaff.permissions : { edit_details: false, edit_status: false };
+    
+    const detailsDisabled = (!window.isAdminMode && !perms.edit_details) ? "disabled" : "";
+    const statusDisabled = (!window.isAdminMode && !perms.edit_status && !perms.edit_details) ? "disabled" : "";
+
+    const addons = Array.isArray(row.addons) ? row.addons : [];
+    const addonsTotal = addons.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0);
+    const grandTotal = totalPrice + addonsTotal;
+
     tr.innerHTML = `
-    <td data-label="כלב ופרטים">
-      <div style="display: flex; align-items: flex-start; gap: 10px;">
-        ${row.dog_photo ? `<img src="${row.dog_photo}" class="dog-thumbnail" />` : `<div class="dog-thumbnail-placeholder"><i class="fas fa-camera"></i></div>`}
-        <div style="line-height: 1.4;">
-          <div style="font-weight: 800; color: var(--primary);">${row.dog_name || ""}</div>
-          <div style="font-size: 11px; color: #64748b;">${row.dog_breed || ""} | ${row.dog_age || ""}</div>
-          <div style="font-size: 11px; color: #6366f1;">${row.neutered || ""}</div>
+    <td data-label="תאריך הזמנה">${formatDateTime(row.order_date || row.created_at)}</td>
+    <td data-label="בעלים">${row.owner_name}</td>
+    <td data-label="טלפון">${createWhatsAppLink(row.phone)}</td>
+    <td data-label="אישור" data-feature="whatsapp_automation">${generateWhatsAppConfirmationLink(row)}</td>
+    <td data-label="כניסה" class="wide-date-column">
+      <input type="text" class="date-input" ${detailsDisabled} data-id="${
+        row.id
+      }" data-field="check_in" value="${formatDateForInput(
+      row.check_in
+    )}" readonly />
+    <div style="font-size: 11px; color: #666; margin-top: 4px;">${formatDateOnly(
+      row.check_in
+    )}</div>
+    </td>
+    <td data-label="יציאה" class="wide-date-column">
+      <input type="text" class="date-input" ${detailsDisabled} data-id="${
+        row.id
+      }" data-field="check_out" value="${formatDateForInput(
+      row.check_out
+    )}" readonly />
+    <div style="font-size: 11px; color: #666; margin-top: 4px;">${formatDateOnly(
+      row.check_out
+    )}</div>
+    </td>
+    <td data-label="כלב">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        ${row.dog_photo ? `
+          <img src="${row.dog_photo}" class="dog-thumbnail" onclick="openImagePreview('${row.dog_photo}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.id}', '${row.phone}')" />
+        ` : `
+          <div class="dog-thumbnail-placeholder" title="${window.isDemoMode ? '' : 'לחצו להעלאת תמונה'}" ${window.isDemoMode ? '' : `onclick="triggerDogPhotoUploadFromTable('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.phone}')"`}>
+            <i class="fas fa-camera" ${window.isDemoMode ? 'style="opacity: 0.3; cursor: default;"' : ''}></i>
+          </div>
+        `}
+        <span style="font-weight: 600;">${row.dog_name || ""}</span>
+      </div>
+    </td>
+    <td data-label="גיל">${row.dog_age}</td>
+    <td data-label="גודל">${row.dog_breed}</td>
+    <td data-label="סירס/עיקור">
+      ${row.neutered || ""}
+      ${row.neutered ? `
+        <div style="font-size: 11px; color: #3b82f6; margin-top: 2px; font-weight: 500;">
+          ${(row.neutered.includes('מסורס') ? 'זכר' : (row.neutered.includes('מעוקרת') ? 'נקבה' : ''))}
+        </div>
+      ` : ''}
+    </td>
+    <td data-label="הערות" style="text-align: right; padding: 12px; line-height: 1.6; max-width: 200px; white-space: normal;">
+      ${formatOrderNotes(row.notes)}
+    </td>
+    <td data-label="תוספות" style="font-size: 12px; max-width: 150px; white-space: normal;">
+        ${addons.length > 0 ? addons.map(a => `<div style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; display: inline-block; font-size: 11px;">${a.name} (${a.price}₪)</div>`).join(' ') : '<span style="color:#94a3b8">אין</span>'}
+    </td>
+    <td data-label="מחיר" class="price-cell" style="vertical-align: top;">
+      <div class="price-wrapper">
+        <div class="price-controls" ${detailsDisabled ? 'style="opacity:0.3;pointer-events:none;"' : ''}>
+          <button class="price-btn" ${detailsDisabled} onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), 10)">▲</button>
+          <button class="price-btn" ${detailsDisabled} onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), -10)">▼</button>
+        </div>
+        <div class="price-input-container">
+          <input type="number" class="price-input" ${detailsDisabled} data-id="${
+            row.id
+          }" value="${pricePerDay}" min="0" step="10" />
         </div>
       </div>
     </td>
-    <td data-label="בעלים ותקשורת">
-      <div>
-        <div style="font-weight: 700;">${row.owner_name || ""}</div>
-        <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">הוזמן ב: ${formatDateTime(row.order_date || row.created_at)}</div>
-      </div>
+    <td data-label="סהכ שהייה" style="font-weight: 600;">${formatNumber(totalPrice)}₪</td>
+    <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
+    <td data-label="סטטוס">
+      <select data-id="${row.id}" ${statusDisabled} class="status-select ${
+        row.status === "מאושר"
+          ? "status-approved"
+          : row.status === "בוטל"
+          ? "status-cancelled"
+          : ""
+      }">
+        <option value="ממתין" ${
+          row.status === "ממתין" ? "selected" : ""
+        }>ממתין</option>
+        <option value="מאושר" ${
+          row.status === "מאושר" ? "selected" : ""
+        }>מאושר</option>
+        <option value="בוטל" ${
+          row.status === "בוטל" ? "selected" : ""
+        }>בוטל</option>
+      </select>
     </td>
-    <td data-label="תאריכי שהייה">
-      <div style="font-size: 13px; color: #475569;">
-        <div>מ- ${formatDateWithDay(row.check_in)}</div>
-        <div>עד ${formatDateWithDay(row.check_out)}</div>
-        <div style="font-weight: 700; color: #1e293b; margin-top: 4px;">${days} ימים</div>
-      </div>
+    <td data-label="ניהול" class="manager-note-column">
+      <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
+         <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
+      </button>
+      ${window.isAdminMode ? `<button type="button" class="delete-order-btn" onclick="showDeleteOrderConfirm('${row.id}', '${(row.dog_name||'').replace(/'/g,"\\'")}'  , '${(row.owner_name||'').replace(/'/g,"\\'")}'  )" title="מחק הזמנה" style="margin-top:6px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px;"><i class=\"fas fa-trash-alt\"></i> מחק</button>` : ''}
     </td>
-    <td data-label="הערות ותוספות">
-      <div style="font-size: 12px; color: #475569; max-width: 200px;">
-        <div style="margin-bottom: 4px; overflow-wrap: break-word;">${row.notes || ""}</div>
-        <div style="color: #6366f1; font-weight: 600;">${addons.length > 0 ? addons.map(a => a.name).join(', ') : ''}</div>
-      </div>
-    </td>
-    <td data-label="תמחור וסיכום">
-      <div style="font-size: 13px;">
-        <div>${pricePerDay}₪ ליום</div>
-        <div style="font-weight: 700; color: #6366f1; margin-top: 4px;">סה"כ: ${formatNumber(grandTotal)}₪</div>
-      </div>
-    </td>
-    <td data-label="סטטוס וניהול">
-      <div style="display: flex; flex-direction: column; gap: 6px;">
-        <div class="status-badge ${row.status === 'מאושר' ? 'status-approved' : row.status === 'בוטל' ? 'status-cancelled' : 'status-pending'}" style="text-align: center; padding: 4px; border-radius: 6px; font-size: 12px; font-weight: 700;">
-          ${row.status}
-        </div>
-        <button type="button" class="view-notes-btn" style="padding: 4px; font-size: 11px;" onclick="openNotesModal('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${(row.owner_name || 'בעלים').replace(/'/g, "\\'")}')">
-          <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
-        </button>
-      </div>
-    </td>
-    `;
+  `;
     tbody.appendChild(tr);
-
-
-
-
-
-
   });
   
   initFlatpickr();
@@ -2357,7 +2414,9 @@ function renderFutureOrdersTable() {
   futureTbody.innerHTML = "";
 
   data.forEach((row) => {
+      // --- ניקוי הערות כפולות אם נשארו ---
       let notes = row.notes ? row.notes.trim() : "";
+
       row.notes = notes;
 
       let tr = document.createElement("tr");
@@ -2378,104 +2437,85 @@ function renderFutureOrdersTable() {
       const grandTotal = totalPrice + addonsTotal;
 
       tr.innerHTML = `
-      <td data-label="כלב ופרטים">
-        <div style="display: flex; align-items: flex-start; gap: 12px; text-align: right;">
+      <td data-label="תאריך הזמנה">${formatDateTime(row.order_date || row.created_at)}</td>
+      <td data-label="בעלים">${row.owner_name || ""}</td>
+      <td data-label="טלפון">${createWhatsAppLink(row.phone)}</td>
+      <td data-label="אישור" data-feature="whatsapp_automation">${generateWhatsAppConfirmationLink(row)}</td>
+      <td data-label="כניסה" class="wide-date-column">
+        <input type="text" class="date-input" ${detailsDisabled} data-id="${
+          row.id
+        }" data-field="check_in" value="${formatDateForInput(
+        row.check_in
+      )}" readonly />
+      <div style="font-size: 11px; color: #666; margin-top: 4px;">${formatDateOnly(
+        row.check_in
+      )}</div>
+      </td>
+      <td data-label="יציאה" class="wide-date-column">
+        <input type="text" class="date-input" ${detailsDisabled} data-id="${
+          row.id
+        }" data-field="check_out" value="${formatDateForInput(
+        row.check_out
+      )}" readonly />
+      <div style="font-size: 11px; color: #666; margin-top: 4px;">${formatDateOnly(
+        row.check_out
+      )}</div>
+      </td>
+      <td data-label="כלב">
+        <div style="display: flex; align-items: center; gap: 10px;">
           ${row.dog_photo ? `
-            <img src="${row.dog_photo}" class="dog-thumbnail" style="width: 44px; height: 44px;" onclick="openImagePreview('${row.dog_photo}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.id}', '${row.phone}')" />
+            <img src="${row.dog_photo}" class="dog-thumbnail" onclick="openImagePreview('${row.dog_photo}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.id}', '${row.phone}')" />
           ` : `
-            <div class="dog-thumbnail-placeholder" style="width: 44px; height: 44px;" title="${window.isDemoMode ? '' : 'לחצו להעלאת תמונה'}" ${window.isDemoMode ? '' : `onclick="triggerDogPhotoUploadFromTable('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.phone}')"`}>
-              <i class="fas fa-camera" style="font-size: 16px; ${window.isDemoMode ? 'opacity: 0.3; cursor: default;' : ''}"></i>
+            <div class="dog-thumbnail-placeholder" title="${window.isDemoMode ? '' : 'לחצו להעלאת תמונה'}" ${window.isDemoMode ? '' : `onclick="triggerDogPhotoUploadFromTable('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.phone}')"`}>
+              <i class="fas fa-camera" ${window.isDemoMode ? 'style="opacity: 0.3; cursor: default;"' : ''}></i>
             </div>
           `}
-          <div style="line-height: 1.4;">
-            <div style="font-weight: 800; font-size: 16px; color: var(--primary);">${row.dog_name || ""}</div>
-            <div style="font-size: 13px; color: #64748b; margin-top: 2px;">
-              ${row.dog_breed || ""} | ${row.dog_age || ""}
-            </div>
-            ${row.neutered ? `
-              <div style="font-size: 12px; color: #6366f1; font-weight: 600; margin-top: 2px;">
-                ${row.neutered} (${(row.neutered.includes('מסורס') ? 'זכר' : (row.neutered.includes('מעוקרת') ? 'נקבה' : ''))})
-              </div>
-            ` : ''}
+          <span style="font-weight: 600;">${row.dog_name || ""}</span>
+        </div>
+      </td>
+      <td data-label="גיל">${row.dog_age || ""}</td>
+      <td data-label="גודל">${row.dog_breed || ""}</td>
+      <td data-label="סירס/עיקור">
+        ${row.neutered || ""}
+        ${row.neutered ? `
+          <div style="font-size: 11px; color: #3b82f6; margin-top: 2px; font-weight: 500;">
+            ${(row.neutered.includes('מסורס') ? 'זכר' : (row.neutered.includes('מעוקרת') ? 'נקבה' : ''))}
+          </div>
+        ` : ''}
+      </td>
+      <td data-label="הערות" style="text-align: right; padding: 12px; line-height: 1.6; max-width: 200px; white-space: normal;">
+        ${formatOrderNotes(row.notes)}
+      </td>
+      <td data-label="תוספות" style="font-size: 12px; max-width: 150px; white-space: normal;">
+        ${addons.length > 0 ? addons.map(a => `<div style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; display: inline-block; font-size: 11px;">${a.name} (${a.price}₪)</div>`).join(' ') : '<span style="color:#94a3b8">אין</span>'}
+      </td>
+      <td data-label="מחיר" class="price-cell" style="vertical-align: top;">
+        <div class="price-wrapper">
+          <div class="price-controls" ${detailsDisabled ? 'style="opacity:0.3;pointer-events:none;"' : ''}>
+            <button class="price-btn" ${detailsDisabled} onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), 10)">▲</button>
+            <button class="price-btn" ${detailsDisabled} onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), -10)">▼</button>
+          </div>
+          <div class="price-input-container">
+            <input type="number" class="price-input" ${detailsDisabled} data-id="${
+              row.id
+            }" value="${pricePerDay}" min="0" step="10" />
           </div>
         </div>
       </td>
-      <td data-label="בעלים ותקשורת">
-        <div style="line-height: 1.5;">
-          <div style="font-weight: 700; color: #1e293b;">${row.owner_name || ""}</div>
-          <div style="margin-top: 6px;">${createWhatsAppLink(row.phone)}</div>
-          <div style="margin-top: 8px;">${generateWhatsAppConfirmationLink(row)}</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 6px;">הוזמן ב: ${formatDateTime(row.order_date || row.created_at)}</div>
+      <td data-label="סהכ שהייה" style="font-weight: 600;">${formatNumber(totalPrice)}₪</td>
+      <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
+      <td data-label="סטטוס">
+        <div class="status-btn-group ${statusDisabled ? 'disabled' : ''}" data-id="${row.id}" data-status="${row.status}">
+          <button type="button" class="status-btn ${row.status === 'ממתין' ? 'active' : ''}" data-value="ממתין" onclick="handleStatusBtnClick('${row.id}', 'ממתין', this)">ממתין</button>
+          <button type="button" class="status-btn ${row.status === 'מאושר' ? 'active' : ''}" data-value="מאושר" onclick="handleStatusBtnClick('${row.id}', 'מאושר', this)">מאושר</button>
+          <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
         </div>
       </td>
-      <td data-label="תאריכי שהייה">
-        <div class="stay-dates-card" ${detailsDisabled ? '' : `onclick="openDateSelectionModal('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${row.check_in}', '${row.check_out}')"`} style="cursor: ${detailsDisabled ? 'default' : 'pointer'}; background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; transition: all 0.2s; text-align: center;">
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div style="font-size: 13px; color: #64748b; font-weight: 600;">מ- ${formatDateWithDay(row.check_in)}</div>
-            <div style="font-size: 13px; color: #64748b; font-weight: 600;">עד ${formatDateWithDay(row.check_out)}</div>
-            <div style="margin-top: 6px; background: #6366f1; color: white; font-size: 12px; font-weight: 800; padding: 2px 8px; border-radius: 20px; display: inline-block; align-self: center;">${days} ימים 🐾</div>
-          </div>
-          ${detailsDisabled ? '' : '<div style="font-size: 10px; color: #6366f1; margin-top: 6px; font-weight: 700;"><i class="fas fa-edit"></i> לחצו לשינוי</div>'}
-        </div>
-      </td>
-      <td data-label="הערות ותוספות">
-        <div style="max-height: 120px; overflow-y: auto; padding-left: 5px;">
-          <div style="margin-bottom: 10px;">
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">הערות:</div>
-            <div style="font-size: 13px; color: #475569; white-space: normal;">${formatOrderNotes(row.notes) || '<span style="color:#cbd5e0;">אין</span>'}</div>
-          </div>
-          <div>
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px;">תוספות:</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-              ${addons.length > 0 ? addons.map(a => `<span style="background: #eff6ff; color: #1d4ed8; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid #dbeafe;">${a.name}</span>`).join('') : '<span style="color:#cbd5e0; font-size: 13px;">אין</span>'}
-            </div>
-          </div>
-        </div>
-      </td>
-      <td data-label="תמחור וסיכום">
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <div class="price-wrapper">
-             <div style="font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 2px;">מחיר ליום:</div>
-             <div style="display: flex; align-items: center; gap: 4px;">
-                <div class="price-input-container" style="width: 70px;">
-                  <input type="number" class="price-input" ${detailsDisabled} data-id="${row.id}" value="${pricePerDay}" min="0" step="10" />
-                </div>
-                <div class="price-controls" ${detailsDisabled ? 'style="display:none;"' : ''}>
-                  <button class="price-btn" onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), 10)">▲</button>
-                  <button class="price-btn" onclick="updatePriceWithButtons(this.closest('.price-wrapper').querySelector('.price-input'), -10)">▼</button>
-                </div>
-             </div>
-          </div>
-          <div style="border-top: 1px solid #f1f5f9; padding-top: 6px;">
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b;">
-              <span>שהייה:</span>
-              <span style="font-weight: 700;">${formatNumber(totalPrice)}₪</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-top: 2px;">
-              <span>תוספות:</span>
-              <span style="font-weight: 700;">${formatNumber(addonsTotal)}₪</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 15px; color: #6366f1; margin-top: 4px; font-weight: 800; background: #eef2ff; padding: 4px 8px; border-radius: 8px;">
-              <span>סה"כ:</span>
-              <span>${formatNumber(grandTotal)}₪</span>
-            </div>
-          </div>
-        </div>
-      </td>
-      <td data-label="סטטוס וניהול">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-          <div class="status-btn-group ${statusDisabled ? 'disabled' : ''}" data-id="${row.id}" data-status="${row.status}">
-            <button type="button" class="status-btn ${row.status === 'ממתין' ? 'active' : ''}" data-value="ממתין" onclick="handleStatusBtnClick('${row.id}', 'ממתין', this)">ממתין</button>
-            <button type="button" class="status-btn ${row.status === 'מאושר' ? 'active' : ''}" data-value="מאושר" onclick="handleStatusBtnClick('${row.id}', 'מאושר', this)">מאושר</button>
-            <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button type="button" class="view-notes-btn" style="flex: 1; font-size: 12px; padding: 8px;" onclick="openNotesModal('${row.id}', '${(row.dog_name || 'כלב').replace(/'/g, "\\'")}', '${(row.owner_name || 'בעלים').replace(/'/g, "\\'")}')">
-              <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
-            </button>
-            ${window.isAdminMode ? `<button type="button" class="delete-order-btn" onclick="showDeleteOrderConfirm('${row.id}', '${(row.dog_name||'').replace(/'/g,"\\'")}', '${(row.owner_name||'').replace(/'/g,"\\'")}')" title="מחק הזמנה" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; width: 40px; height: 35px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trash-alt"></i></button>` : ''}
-          </div>
-        </div>
+      <td data-label="ניהול" class="manager-note-column">
+        <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
+          <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
+      </button>
+      ${window.isAdminMode ? `<button type="button" class="delete-order-btn" onclick="showDeleteOrderConfirm('${row.id}', '${(row.dog_name||'').replace(/'/g,"\\'")}'  , '${(row.owner_name||'').replace(/'/g,"\\'")}'  )" title="מחק הזמנה" style="margin-top:6px; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px;"><i class=\"fas fa-trash-alt\"></i> מחק</button>` : ''}
       </td>
     `;
       futureTbody.appendChild(tr);
@@ -2483,218 +2523,35 @@ function renderFutureOrdersTable() {
 
     document
       .querySelectorAll(
-        "#futureOrdersTable .price-input"
+        "#futureOrdersTable .price-input, #futureOrdersTable .days-input"
       )
       .forEach((input) => {
         input.addEventListener("input", function () {
           const row = this.closest("tr");
+          if (this.classList.contains("days-input")) {
+            updateCheckOutFromDays(row);
+          }
+          const priceInput = row.querySelector(".price-input");
+          const daysInput = row.querySelector(".days-input");
+          const priceCell = row.querySelector(".price-cell");
+          const tooltip = priceCell ? priceCell.querySelector(".tooltip") : null;
+          const totalLabel = row.querySelector(".total-price-display");
+
+          const price = parseInt(priceInput.value) || 0;
+          const days = parseInt(daysInput.value) || 0;
+          const total = price * days;
+
+          const text = `עלות שהייה: ${formatNumber(total)}₪`;
+          if (tooltip) tooltip.textContent = text;
+          if (totalLabel) totalLabel.textContent = `סה"כ: ${formatNumber(total)}₪`;
         });
       });
 
+    /* Previous status-select logic removed as it's now handled by handleStatusBtnClick or remains for past orders only */
+
+    initFlatpickr();
     if (typeof Features !== 'undefined') Features.syncUI();
 }
-
-// --- Date Selection Modal Logic ---
-window.adminCurrentSelectionPhase = 1;
-window.adminActiveOrderId = null;
-window.adminCapacityDate = new Date();
-
-function openDateSelectionModal(orderId, dogName, checkIn, checkOut) {
-  window.adminActiveOrderId = orderId;
-  window.adminCurrentSelectionPhase = 1;
-  
-  const modal = document.getElementById('dateSelectionModal');
-  document.getElementById('dateModalDogName').textContent = `הזמנה עבור: ${dogName}`;
-  document.getElementById('modalCheckInDate').value = formatDateForInput(checkIn);
-  document.getElementById('modalCheckOutDate').value = formatDateForInput(checkOut);
-  
-  // Set calendar view to check-in month
-  const dIn = new Date(checkIn);
-  window.adminCapacityDate = isNaN(dIn) ? new Date() : new Date(dIn.getFullYear(), dIn.getMonth(), 1);
-  
-  modal.style.display = 'flex';
-  updateAdminDaysDisplay();
-  loadAdminMonthlyCapacity();
-}
-
-function closeDateSelectionModal() {
-  document.getElementById('dateSelectionModal').style.display = 'none';
-}
-
-async function loadAdminMonthlyCapacity() {
-  const client = pensionetSupabase;
-  let MAX_CAPACITY = window.currentPension?.max_capacity || 15;
-
-  const year = window.adminCapacityDate.getFullYear();
-  const month = window.adminCapacityDate.getMonth();
-  
-  const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
-  document.getElementById('adminCapacityMonthYear').textContent = `${monthNames[month]} ${year}`;
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  
-  try {
-    const { data: orders, error } = await client
-      .from('orders')
-      .select('id, check_in, check_out')
-      .eq('status', 'מאושר')
-      .eq('pension_id', window.currentPension?.id)
-      .gte('check_out', firstDay.toISOString().split('T')[0])
-      .lte('check_in', lastDay.toISOString().split('T')[0]);
-
-    if (error) throw error;
-
-    const capacityByDate = {};
-    const totalDays = lastDay.getDate();
-    for (let i = 1; i <= totalDays; i++) capacityByDate[i] = 0;
-
-    orders.forEach(order => {
-      if (order.id === window.adminActiveOrderId) return; // Exclude current order from capacity check
-      const start = new Date(order.check_in).getTime();
-      const end = new Date(order.check_out).getTime();
-      const loopStart = Math.max(start, firstDay.getTime());
-      const loopEnd = Math.min(end, lastDay.getTime());
-      for (let t = loopStart; t <= loopEnd; t += 86400000) {
-        const d = new Date(t);
-        capacityByDate[d.getDate()]++;
-      }
-    });
-
-    let html = '';
-    const startDay = firstDay.getDay();
-    for (let i = 0; i < startDay; i++) html += `<div></div>`;
-    
-    const selInStr = document.getElementById('modalCheckInDate').value;
-    const selOutStr = document.getElementById('modalCheckOutDate').value;
-    const selIn = parseDateFromInput(selInStr);
-    const selOut = parseDateFromInput(selOutStr);
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    for (let day = 1; day <= totalDays; day++) {
-        const count = capacityByDate[day];
-        const perc = (count / MAX_CAPACITY) * 100;
-        const currentDate = new Date(year, month, day);
-        const dateStr = formatDateToISO(currentDate);
-        
-        let bgColor = '#4caf50';
-        if (perc >= 80) bgColor = '#ff9800'; 
-        if (perc >= 100) bgColor = '#f44336';
-        
-        let highlightStyle = '';
-        let textColor = 'white';
-
-        if (selIn && dateStr === selIn) {
-            highlightStyle = 'background: #6366f1 !important; border-radius: 8px; box-shadow: 0 0 8px rgba(99,102,241,0.5); transform: scale(1.05); z-index: 2;';
-        } else if (selOut && dateStr === selOut) {
-            highlightStyle = 'background: #6366f1 !important; border-radius: 8px; box-shadow: 0 0 8px rgba(99,102,241,0.5); transform: scale(1.05); z-index: 2;';
-        } else if (selIn && selOut && dateStr > selIn && dateStr < selOut) {
-            highlightStyle = 'background: #eef2ff !important; color: #6366f1 !important; border-radius: 0;';
-            textColor = '#6366f1';
-        }
-
-        const isPast = currentDate.getTime() < today.getTime();
-        html += `
-        <div onclick="onAdminDateClick(${day}, ${month}, ${year})" 
-             style="background:${bgColor}; color:${textColor}; border-radius:8px; padding:6px 2px; text-align:center; min-height: 42px; display:flex; flex-direction:column; justify-content:center; cursor:pointer; font-size: 11px; ${highlightStyle} ${isPast ? 'opacity: 0.5;' : ''}">
-          <div style="font-weight:800;">${day}</div>
-          <div style="font-size:9px; opacity: 0.9;">${count}/${MAX_CAPACITY}</div>
-        </div>`;
-    }
-    document.getElementById('adminCapacityCalendar').innerHTML = html;
-  } catch (err) {
-    console.error("Error loading admin capacity:", err);
-  }
-}
-
-function onAdminDateClick(day, month, year) {
-  const selectedDate = new Date(year, month, day);
-  const dateStr = formatDateToISO(selectedDate);
-  const inEl = document.getElementById('modalCheckInDate');
-  const outEl = document.getElementById('modalCheckOutDate');
-
-  if (window.adminCurrentSelectionPhase === 1) {
-    inEl.value = formatDateForInput(dateStr);
-    outEl.value = formatDateForInput(dateStr);
-    window.adminCurrentSelectionPhase = 2;
-  } else {
-    const currentIn = parseDateFromInput(inEl.value);
-    if (dateStr < currentIn) {
-      inEl.value = formatDateForInput(dateStr);
-      outEl.value = formatDateForInput(dateStr);
-      window.adminCurrentSelectionPhase = 2;
-    } else {
-      outEl.value = formatDateForInput(dateStr);
-      window.adminCurrentSelectionPhase = 1;
-    }
-  }
-  updateAdminDaysDisplay();
-  loadAdminMonthlyCapacity();
-}
-
-function updateAdminDaysDisplay() {
-  const inVal = document.getElementById('modalCheckInDate').value;
-  const outVal = document.getElementById('modalCheckOutDate').value;
-  const checkIn = parseDateFromInput(inVal);
-  const checkOut = parseDateFromInput(outVal);
-  const display = document.getElementById('modalDaysDisplay');
-  if (checkIn && checkOut) {
-    const days = calculateDays(checkIn, checkOut);
-    display.textContent = days === 1 ? `יום כיף בגן 🐾` : `${days} ימים בפנסיון 🐾`;
-  } else {
-    display.textContent = '';
-  }
-}
-
-function changeAdminCapacityMonth(offset) {
-  window.adminCapacityDate.setMonth(window.adminCapacityDate.getMonth() + offset);
-  loadAdminMonthlyCapacity();
-}
-
-async function saveSelectedDates() {
-  if (!window.adminActiveOrderId) return;
-  const inVal = document.getElementById('modalCheckInDate').value;
-  const outVal = document.getElementById('modalCheckOutDate').value;
-  const checkIn = parseDateFromInput(inVal);
-  const checkOut = parseDateFromInput(outVal);
-  
-  if (!checkIn || !checkOut) {
-    showToast('נא לבחור תאריכי כניסה ויציאה', 'error');
-    return;
-  }
-
-  try {
-    const { error } = await pensionetSupabase
-      .from('orders')
-      .update({ check_in: checkIn, check_out: checkOut })
-      .eq('id', window.adminActiveOrderId);
-
-    if (error) throw error;
-    
-    showToast('התאריכים עודכנו בהצלחה', 'success');
-    closeDateSelectionModal();
-    loadData(); // Reload table
-  } catch (err) {
-    console.error('Error saving dates:', err);
-    showToast('שגיאה בעדכון התאריכים', 'error');
-  }
-}
-
-// Function to convert DD/MM/YYYY back to ISO YYYY-MM-DD for comparison and calendar
-function parseDateFromInput(str) {
-    if (!str || !str.includes('/')) return str;
-    const [d, m, y] = str.split('/');
-    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-}
-
-function formatDateToISO(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
 
 // Event Listeners for Future Orders Filtering
 document.getElementById('futureSearchInput')?.addEventListener('input', debounce(() => {
