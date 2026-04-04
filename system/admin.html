@@ -324,6 +324,16 @@
                 <i class="fas fa-search"></i>
                 <input type="text" id="historySearchInput" placeholder="חיפוש בהיסטוריה (שם, טלפון, כלב)..." data-i18n="history_search_placeholder">
               </div>
+              <div class="filter-group">
+                <i class="fas fa-sort-amount-down"></i>
+                <select id="historySortSelect">
+                  <option value="order_date_desc" data-i18n="sort_order_date">תאריך הזמנה (חדש לישן)</option>
+                  <option value="order_date_asc" data-i18n="sort_order_date_asc">תאריך הזמנה (ישן לחדש)</option>
+                  <option value="check_in_asc" data-i18n="sort_checkin_asc">כניסה (מהקרוב לרחוק)</option>
+                  <option value="check_in_desc" data-i18n="sort_checkin_desc">כניסה (מהרחוק לקרוב)</option>
+                  <option value="dog_name" data-i18n="sort_dog_name">שם הכלב (א-ת)</option>
+                </select>
+              </div>
             </div>
           </div>
           <div id="pastOrdersTableWrapper">

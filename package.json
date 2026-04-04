@@ -1,0 +1,12 @@
+{
+  "name": "pensionet",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "dev:system": "vite system",
+    "dev:website": "vite website"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

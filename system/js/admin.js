@@ -153,6 +153,16 @@ document.addEventListener("DOMContentLoaded", async function () {
      if (overlay) overlay.style.setProperty('display', 'none', 'important');
   }
 
+  /* Disable profile picture upload in demo mode */
+  if (window.isDemoMode) {
+     const avatarContainer = document.getElementById('my-profile-avatar-container');
+     if (avatarContainer) {
+         avatarContainer.style.pointerEvents = 'none';
+         const cameraIcon = avatarContainer.querySelector('div[style*="position: absolute"]');
+         if (cameraIcon) cameraIcon.style.display = 'none';
+     }
+  }
+
   const session = await checkAuthStatus();
   if (session) {
     // Wait for auth.js to finish loading the profile/pension for the admin themselves first
@@ -1769,11 +1779,32 @@ function filterPastOrdersData() {
   );
 }
 
+function sortPastOrdersData(data) {
+  const sortVal = document.getElementById('historySortSelect')?.value || 'order_date_desc';
+  return data.sort((a, b) => {
+    switch (sortVal) {
+      case 'order_date_desc':
+        return new Date(b.order_date || b.created_at) - new Date(a.order_date || a.created_at);
+      case 'order_date_asc':
+        return new Date(a.order_date || a.created_at) - new Date(b.order_date || b.created_at);
+      case 'check_in_asc':
+        return new Date(a.check_in) - new Date(b.check_in);
+      case 'check_in_desc':
+        return new Date(b.check_in) - new Date(a.check_in);
+      case 'dog_name':
+        return (a.dog_name || "").localeCompare(b.dog_name || "");
+      default:
+        return 0;
+    }
+  });
+}
+
 function renderPastOrdersTable() {
   const tbody = document.querySelector("#pastOrdersTable tbody");
   if (!tbody) return;
   tbody.innerHTML = "";
-  const filtered = filterPastOrdersData();
+  let filtered = filterPastOrdersData();
+  filtered = sortPastOrdersData(filtered);
   const totalRows = filtered.length;
   const maxPage = Math.max(
     1,
@@ -2564,6 +2595,10 @@ document.getElementById('futureStatusFilter')?.addEventListener('change', () => 
 
 document.getElementById('futureSortSelect')?.addEventListener('change', () => {
   renderFutureOrdersTable();
+});
+
+document.getElementById('historySortSelect')?.addEventListener('change', () => {
+  renderPastOrdersTable();
 });
 
 document
@@ -5604,6 +5639,7 @@ function promptDeleteCustomEvent(eventId) {
 }
 // --- Avatar Upload Handling ---
 async function handleAvatarUpload(event) {
+  if (window.isDemoMode) return;
   const file = event.target.files[0];
   if (!file) return;
 
