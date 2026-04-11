@@ -266,13 +266,6 @@
                 <input type="number" id="default_price" placeholder="130" min="0" required>
             </div>
 
-            <div class="form-group">
-                <label for="manager_pin">קוד PIN לניהול (עבור הוספת עובדים)</label>
-                <div class="password-wrapper">
-                    <input type="password" id="manager_pin" class="pin-input" placeholder="1234" maxlength="4" pattern="[0-9]{4}" required title="יש להזין 4 ספרות">
-                    <i class="far fa-eye password-toggle" id="togglePin" onclick="togglePinVisibility()"></i>
-                </div>
-            </div>
 
             <div class="form-group" style="margin-top: 25px;">
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: normal;">
@@ -355,7 +348,7 @@
                 location: document.getElementById('location').value,
                 max_capacity: document.getElementById('max_capacity').value,
                 default_price: document.getElementById('default_price').value,
-                manager_pin: document.getElementById('manager_pin').value,
+                manager_pin: '1234',
                 terms_accepted: document.getElementById('termsCheck').checked
             };
 
@@ -453,20 +446,6 @@
             }
         }
 
-        function togglePinVisibility() {
-            const pinInput = document.getElementById('manager_pin');
-            const toggleIcon = document.getElementById('togglePin');
-            
-            if (pinInput.type === 'password') {
-                pinInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                pinInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
     </script>
 </body>
 </html>
