@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pensionet | הגדרת חשבון</title>
     <link rel="icon" href="favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pensionet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pensionet.vercel.app/system/setup.html">
@@ -357,20 +364,37 @@
             submitBtn.textContent = 'מעדכן פרופיל...';
 
             try {
-                // 1. Update Auth metadata
-                console.log('Step 1: Updating Auth metadata...');
-                const { data: authData, error: authError } = await supabaseClient.auth.updateUser({
-                    data: formData
-                });
-                if (authError) throw new Error('שגיאה בעדכון נתוני אבטחה: ' + authError.message);
+                // Step 0: Ensure we have a valid session
+                console.log('Step 0: Verifying session...');
+                const session = await Auth.getSession();
+                if (!session) {
+                    throw new Error('החיבור פג או לא נמצא. נא להיכנס שוב למערכת.');
+                }
+                const userId = session.user.id;
+                console.log('User identified:', userId);
 
-                // 2. Create Pension Record
+                // Step 1: Update Auth metadata (Non-blocking)
+                console.log('Step 1: Updating Auth metadata...');
+                try {
+                    const { error: authError } = await supabaseClient.auth.updateUser({
+                        data: formData
+                    });
+                    if (authError) {
+                         console.warn('Metadata update returned an error (skipping):', authError.message);
+                    } else {
+                         console.log('Metadata updated successfully.');
+                    }
+                } catch (e) {
+                    console.warn('Metadata update failed with exception (skipping):', e.message);
+                }
+
+                // Step 2: Create Pension Record
                 console.log('Step 2: Creating Pension Record...');
                 const { data: pensionData, error: pensionError } = await supabaseClient
                     .from('pensions')
                     .insert({
                         name: formData.business_name,
-                        owner_id: authData.user.id,
+                        owner_id: userId,
                         location: formData.location,
                         phone: formData.phone,
                         max_capacity: parseInt(formData.max_capacity) || 10,
@@ -392,7 +416,7 @@
                     throw new Error('שגיאה ביצירת פנסיון: ' + pensionError.message);
                 }
 
-                // 3. Update profile to link to pension
+                // Step 3: Update profile to link to pension
                 console.log('Step 3: Linking profile to pension ID:', pensionData.id);
                 const { error: profileError } = await supabaseClient
                     .from('profiles')
@@ -403,7 +427,7 @@
                         permissions: ['all'],
                         updated_at: new Date().toISOString()
                     })
-                    .eq('user_id', authData.user.id);
+                    .eq('user_id', userId);
 
                 if (profileError) {
                     console.error('Profile update failed:', profileError);
