@@ -4074,45 +4074,51 @@ async function fillWithDemoData() {
     
     const today = new Date();
     const demoOrders = [];
+    const updatedClientsData = { ...(window.clientsData || {}) };
 
-        const updatedClientsData = { ...(window.clientsData || {}) };
+    // Range: -90 to +90 days (approx 6 months)
+    for (let monthOffset = -3; monthOffset <= 2; monthOffset++) {
+        const monthStart = new Date(today);
+        monthStart.setMonth(today.getMonth() + monthOffset);
+        monthStart.setDate(1);
+        monthStart.setHours(0,0,0,0);
 
-    owners.forEach(owner => {
-        const numOrders = Math.floor(Math.random() * 5) + 1; // 1 to 5 orders
-        
-        // Logical price mapping: more orders -> lower price
-        let clientPrice = 130;
-        if (numOrders === 3) clientPrice = 120;
-        else if (numOrders === 4) clientPrice = 110;
-        else if (numOrders === 5) clientPrice = 100;
+        // Generate 3 bookings per month to keep it "quiet"
+        // 1. First booking
+        // 2. Overlapping booking (exactly two dogs)
+        // 3. Separate booking
 
-        const phoneKey = formatPhoneKey(owner.phone);
-        updatedClientsData[phoneKey] = { default_price: clientPrice };
+        const monthlyScenarios = [
+            { dayOffset: 5, duration: 8, overlap: true },  // Order A
+            { dayOffset: 8, duration: 5, overlap: false }, // Order B (overlaps A)
+            { dayOffset: 20, duration: 4, overlap: false } // Order C (separate)
+        ];
 
-        for (let j = 0; j < numOrders; j++) {
+        monthlyScenarios.forEach((scenario, idx) => {
+            const owner = owners[Math.floor(Math.random() * owners.length)];
             const dogName = owner.dogs[Math.floor(Math.random() * owner.dogs.length)];
             const size = sizes[Math.floor(Math.random() * sizes.length)];
             
-            const offsetDays = Math.floor(Math.random() * 180) - 90;
-            const checkIn = new Date(today);
-            checkIn.setDate(today.getDate() + offsetDays);
+            const checkIn = new Date(monthStart);
+            checkIn.setDate(scenario.dayOffset);
             
-            const duration = Math.floor(Math.random() * 10) + 1;
             const checkOut = new Date(checkIn);
-            checkOut.setDate(checkIn.getDate() + duration);
+            checkOut.setDate(checkIn.getDate() + scenario.duration);
             
+            const phoneKey = formatPhoneKey(owner.phone);
+            updatedClientsData[phoneKey] = { default_price: 130 };
+
             let status;
             const todayMs = new Date().setHours(0,0,0,0);
             const checkInMs = new Date(checkIn).setHours(0,0,0,0);
             const checkOutMs = new Date(checkOut).setHours(0,0,0,0);
 
             if (checkOutMs < todayMs) {
-                status = Math.random() < 0.15 ? 'בוטל' : 'מאושר';
+                status = 'מאושר';
+            } else if (checkInMs > todayMs) {
+                status = Math.random() < 0.3 ? 'ממתין' : 'מאושר';
             } else {
-                const rnd = Math.random();
-                if (rnd < 0.2) status = 'ממתין';
-                else if (rnd < 0.3) status = 'בוטל';
-                else status = 'מאושר';
+                status = 'מאושר';
             }
 
             const isArrived = (status === 'מאושר' && checkInMs <= todayMs && checkOutMs >= todayMs);
@@ -4125,14 +4131,6 @@ async function fillWithDemoData() {
                 timestamp: new Date().toISOString()
             }];
 
-            if (status === 'בוטל') {
-                adminNotes.push({
-                    content: 'ביטול: שינוי בתוכניות',
-                    author: 'מערכת',
-                    timestamp: checkIn.toISOString()
-                });
-            }
-            
             demoOrders.push({
                 user_id: session.user.id,
                 owner_name: owner.name,
@@ -4146,36 +4144,15 @@ async function fillWithDemoData() {
                 is_arrived: isArrived,
                 is_departed: isDeparted,
                 is_paid: isDeparted || (status === 'מאושר' && Math.random() > 0.6),
-                price_per_day: clientPrice,
+                price_per_day: 130,
                 neutered: Math.random() > 0.5 ? 'מסורס' : 'לא מסורס',
                 notes: Math.random() > 0.7 ? realNotes[Math.floor(Math.random() * realNotes.length)] : '',
                 admin_note: JSON.stringify(adminNotes),
-                created_at: (() => {
-                    const daysAgo = Math.floor(Math.random() * 10) + 5;
-                    const date = new Date(checkIn);
-                    date.setDate(date.getDate() - daysAgo);
-                    date.setHours(Math.floor(Math.random() * 14) + 8, Math.floor(Math.random() * 60), Math.floor(Math.random() * 60));
-                    return date.toISOString();
-                })(),
-                addons: (() => {
-                    const possibleAddons = [
-                        { name: 'מקלחת לפני יציאה', price: 50 },
-                        { name: 'טיול ארוך', price: 30 }
-                    ];
-                    const numAddons = Math.random() < 0.4 ? 1 : (Math.random() < 0.15 ? 2 : 0);
-                    if (numAddons === 0) return null;
-                    const selected = [];
-                    for (let a = 0; a < numAddons; a++) {
-                        const idx = Math.floor(Math.random() * possibleAddons.length);
-                        if (!selected.some(s => s.name === possibleAddons[idx].name)) {
-                            selected.push(possibleAddons[idx]);
-                        }
-                    }
-                    return selected;
-                })()
+                created_at: new Date(checkIn.getTime() - 7 * 86400000).toISOString(),
+                addons: Math.random() < 0.3 ? [{ name: 'מקלחת לפני יציאה', price: 50 }] : null
             });
-        }
-    });
+        });
+    }
 
     try {
       const { error: orderError } = await pensionetSupabase.from('orders').insert(demoOrders);
@@ -5920,170 +5897,81 @@ function generateLocalDemoData() {
     
     const termsSuffix = isEn ? ' ✅ Client approved terms of use' : ' ✅ הלקוח/ה אישר/ה תנאי שימוש';
     
-    const demoOrders = [
-        // --- TODAY'S MOVEMENTS ---
-        {
-            id: 'demo-today-in',
-            order_date: ft(new Date(today.getTime() - 7 * dayMs), 10, 15),
+    const demoOrders = [];
+    
+    // Generate for -2, -1, 0, +1 months
+    for (let monthOffset = -2; monthOffset <= 1; monthOffset++) {
+        const monthStart = new Date(today);
+        monthStart.setMonth(today.getMonth() + monthOffset);
+        monthStart.setDate(1);
+        monthStart.setHours(0,0,0,0);
+        
+        const isPast = monthOffset < 0;
+        const status = isPast ? (isEn ? 'Approved' : 'מאושר') : (isEn ? 'Pending' : 'ממתין');
+
+        // Order 1
+        demoOrders.push({
+            id: `demo-${monthOffset}-1`,
+            order_date: ft(new Date(monthStart.getTime() - 10 * dayMs), 10, 0),
             owner_name: isEn ? 'Sarah Levi' : 'שרה לוי',
             dog_name: isEn ? 'Belle' : 'בל',
             dog_age: '2',
             dog_breed: isEn ? 'Small' : 'קטן',
-            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
-            notes: (isEn ? 'Afraid of noises' : 'פחדנית מרעשים') + termsSuffix,
+            neutered: isEn ? 'Yes' : 'כן',
+            notes: (isEn ? 'Friendly' : 'ידידותית') + termsSuffix,
             phone: '0522222222',
-            check_in: f(today),
-            check_out: f(new Date(today.getTime() + 4 * dayMs)),
+            check_in: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 5)),
+            check_out: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 12)),
             status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: false,
-            is_paid: false,
+            is_arrived: isPast,
+            is_paid: isPast,
             price_per_day: 150,
-            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: isEn ? 'Needs a lot of attention' : 'צריכה הרבה יחס'
-        },
-        {
-            id: 'demo-today-out',
-            order_date: ft(new Date(today.getTime() - 14 * dayMs), 14, 30),
+            admin_note: isEn ? 'Quiet dog' : 'כלבה שקטה'
+        });
+
+        // Order 2 (Overlap with Order 1)
+        demoOrders.push({
+            id: `demo-${monthOffset}-2`,
+            order_date: ft(new Date(monthStart.getTime() - 8 * dayMs), 14, 0),
             owner_name: isEn ? 'Yossi Cohen' : 'יוסי כהן',
             dog_name: isEn ? 'Rex' : 'רקס',
             dog_age: '4',
             dog_breed: isEn ? 'Large' : 'גדול',
-            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
-            notes: (isEn ? 'Eats twice a day' : 'אוכל פעמיים ביום') + termsSuffix,
+            neutered: isEn ? 'Yes' : 'כן',
+            notes: (isEn ? 'Eats a lot' : 'אוכל הרבה') + termsSuffix,
             phone: '0501111111',
-            check_in: f(new Date(today.getTime() - 5 * dayMs)),
-            check_out: f(today),
+            check_in: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 8)),
+            check_out: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 15)),
             status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: true,
-            is_paid: true,
+            is_arrived: isPast,
+            is_paid: isPast,
             price_per_day: 130,
-            addons: [{ name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }],
-            admin_note: isEn ? 'In large room' : 'בחדר גדול'
-        },
-        // --- ACTIVE / STAYING ---
-        {
-            id: 'demo-stay-1',
-            order_date: ft(new Date(today.getTime() - 10 * dayMs), 11, 45),
+            admin_note: isEn ? 'Needs space' : 'צריך מרחב'
+        });
+
+        // Order 3 (Separate)
+        demoOrders.push({
+            id: `demo-${monthOffset}-3`,
+            order_date: ft(new Date(monthStart.getTime() - 5 * dayMs), 16, 0),
             owner_name: isEn ? 'Danny Robas' : 'דני רובס',
             dog_name: isEn ? 'Simba' : 'סימבה',
             dog_age: '6',
             dog_breed: isEn ? 'Medium' : 'בינוני',
-            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
+            neutered: isEn ? 'Yes' : 'כן',
             notes: (isEn ? 'Loves balls' : 'אוהב כדורים') + termsSuffix,
             phone: '0543333333',
-            check_in: f(new Date(today.getTime() + 7 * dayMs)),
-            check_out: f(new Date(today.getTime() + 11 * dayMs)),
-            status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: false,
-            is_paid: true,
-            price_per_day: 140,
-            addons: [
-                { name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }
-            ],
-            admin_note: isEn ? 'VIP Customer' : 'לקוח VIP'
-        },
-        // --- FUTURE ---
-        {
-            id: 'demo-future-1',
-            order_date: ft(new Date(today.getTime() - 2 * dayMs), 9, 20),
-            owner_name: isEn ? 'Michal Yaron' : 'מיכל ירון',
-            dog_name: isEn ? 'Charlie' : 'צ׳ארלי',
-            dog_age: '1',
-            dog_breed: isEn ? 'Small' : 'קטן',
-            neutered: isEn ? 'No' : 'לא',
-            notes: (isEn ? 'Energetic puppy' : 'גור אנרגטי') + termsSuffix,
-            phone: '0504444444',
-            check_in: f(new Date(today.getTime() + 14 * dayMs)),
-            check_out: f(new Date(today.getTime() + 18 * dayMs)),
-            status: isEn ? 'Pending' : 'ממתין',
+            check_in: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 22)),
+            check_out: f(new Date(monthStart.getFullYear(), monthStart.getMonth(), 26)),
+            status: status,
             is_arrived: false,
             is_paid: false,
             price_per_day: 140,
-            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: isEn ? 'Take out to the yard often' : 'להוציא הרבה לחצר'
-        },
-        {
-            id: 'demo-future-2',
-            order_date: ft(new Date(today.getTime() - 1 * dayMs), 16, 10),
-            owner_name: isEn ? 'Aviv Geffen' : 'אביב גפן',
-            dog_name: isEn ? 'Luca' : 'לוקה',
-            dog_age: '8',
-            dog_breed: isEn ? 'Large' : 'גדול',
-            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
-            notes: (isEn ? 'Old and quiet dog' : 'כלב מבוגר ושקט') + termsSuffix,
-            phone: '0525555555',
-            check_in: f(new Date(today.getTime() + 21 * dayMs)),
-            check_out: f(new Date(today.getTime() + 25 * dayMs)),
-            status: isEn ? 'Pending' : 'ממתין',
-            is_arrived: false,
-            is_paid: false,
-            price_per_day: 130,
-            addons: [
-                { name: isEn ? 'Long walk' : 'טיול ארוך', price: 30 }
-            ],
-            admin_note: isEn ? 'Morning medications' : 'תרופות בבוקר'
-        },
-        {
-            id: 'demo-future-3',
-            order_date: ft(new Date(today.getTime() - 4 * dayMs), 18, 55),
-            owner_name: isEn ? 'Noa Kirel' : 'נועה קירל',
-            dog_name: isEn ? 'Biggie' : 'ביגי',
-            dog_age: '3',
-            dog_breed: isEn ? 'Medium' : 'בינוני',
-            neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
-            notes: (isEn ? 'Loves to play' : 'אוהב לשחק') + termsSuffix,
-            phone: '0546666666',
-            check_in: f(new Date(today.getTime() + 28 * dayMs)),
-            check_out: f(new Date(today.getTime() + 32 * dayMs)),
-            status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: false,
-            is_paid: true,
-            price_per_day: 140,
-            addons: [{ name: isEn ? 'Bath before departure' : 'מקלחת לפני יציאה', price: 50 }],
-            admin_note: isEn ? 'Famous customer' : 'לקוחה מפורסמת'
-        },
-        // --- HISTORY ---
-        {
-            id: 'demo-history-1',
-            order_date: ft(new Date(today.getTime() - 45 * dayMs), 12, 5),
-            owner_name: isEn ? 'Ron Shahar' : 'רון שחר',
-            dog_name: isEn ? 'Max' : 'מקס',
-            dog_age: '7',
-            dog_breed: isEn ? 'Medium' : 'בינוני',
-            neutered: isEn ? 'No' : 'לא',
-            notes: (isEn ? 'Dominant' : 'דומיננטי') + termsSuffix,
-            phone: '0525555555',
-            check_in: f(new Date(today.getTime() - 40 * dayMs)),
-            check_out: f(new Date(today.getTime() - 35 * dayMs)),
-            status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: true,
-            is_departed: true,
-            is_paid: true,
-            price_per_day: 140,
-            admin_note: isEn ? 'Separate from others' : 'להפריד מאחרים'
-        },
-        {
-            id: 'demo-history-2',
-            order_date: ft(new Date(today.getTime() - 60 * dayMs), 8, 40),
-            owner_name: isEn ? 'Michal Avraham' : 'מיכל אברהם',
-            dog_name: isEn ? 'Bonnie' : 'בוני',
-            dog_age: '5',
-            dog_breed: isEn ? 'Small' : 'קטן',
-            neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
-            notes: (isEn ? 'Needs daily brushing' : 'זקוק לסירוק יומי') + termsSuffix,
-            phone: '0504444444',
-            check_in: f(new Date(today.getTime() - 55 * dayMs)),
-            check_out: f(new Date(today.getTime() - 50 * dayMs)),
-            status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: true,
-            is_departed: true,
-            is_paid: true,
-            price_per_day: 120,
-            admin_note: isEn ? 'Very cute dog' : 'כלב חמוד מאוד'
-        }
-    ];
+            admin_note: ''
+        });
+    }
     return demoOrders;
 }
+
 // --- Add-ons Management Functions ---
 window.addNewAddonRow = function(addonData = null) {
   const list = document.getElementById('settings-addons-list');
