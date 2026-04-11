@@ -335,7 +335,8 @@
         }
 
         async function handleSetup(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
+            console.log('🚀 Starting setup process...');
             
             const submitBtn = document.getElementById('submitBtn');
             const errorDiv = document.getElementById('errorMessage');
@@ -357,12 +358,14 @@
 
             try {
                 // 1. Update Auth metadata
+                console.log('Step 1: Updating Auth metadata...');
                 const { data: authData, error: authError } = await supabaseClient.auth.updateUser({
                     data: formData
                 });
-                if (authError) throw authError;
+                if (authError) throw new Error('שגיאה בעדכון נתוני אבטחה: ' + authError.message);
 
                 // 2. Create Pension Record
+                console.log('Step 2: Creating Pension Record...');
                 const { data: pensionData, error: pensionError } = await supabaseClient
                     .from('pensions')
                     .insert({
@@ -384,9 +387,13 @@
                     .select()
                     .single();
 
-                if (pensionError) throw pensionError;
+                if (pensionError) {
+                    console.error('Pension creation failed:', pensionError);
+                    throw new Error('שגיאה ביצירת פנסיון: ' + pensionError.message);
+                }
 
                 // 3. Update profile to link to pension
+                console.log('Step 3: Linking profile to pension ID:', pensionData.id);
                 const { error: profileError } = await supabaseClient
                     .from('profiles')
                     .update({
@@ -399,20 +406,27 @@
                     .eq('user_id', authData.user.id);
 
                 if (profileError) {
-                    console.warn('Profile sync failed, but metadata updated:', profileError);
+                    console.error('Profile update failed:', profileError);
+                    throw new Error('שגיאה בקישור הפרופיל לפנסיון: ' + profileError.message);
                 }
 
-                // Set identification flags so the user doesn't see the login overlay immediately
+                // Set identification flags
+                console.log('Step 4: Finalizing setup local storage...');
                 localStorage.setItem('pensionet_activeStaff', formData.full_name);
                 localStorage.setItem('pensionet_last_pin_verified', Date.now().toString());
                 
+                console.log('✅ Setup success! Redirecting to admin.html...');
                 window.location.href = 'admin.html';
             } catch (error) {
-                console.error(error);
-                errorDiv.textContent = 'שגיאה בעדכון הפרטים: ' + error.message;
+                console.error('❌ Setup failed:', error);
+                errorDiv.textContent = 'שגיאה בהקמה: ' + error.message;
                 errorDiv.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'סיום הגדרה וכניסה למערכת';
+                
+                // Keep values in fields so user doesn't lose them
+                // and scroll to error
+                errorDiv.scrollIntoView({ behavior: 'smooth' });
             }
         }
 
