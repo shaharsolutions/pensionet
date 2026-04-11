@@ -435,14 +435,42 @@
                 window.location.href = 'admin.html';
             } catch (error) {
                 console.error('❌ Setup failed:', error);
-                errorDiv.textContent = 'שגיאה בהקמה: ' + error.message;
+                
+                // Detection logic for Orphaned Sessions (User ID in JWT doesn't exist in auth.users)
+                const isOrphaned = error.message.includes('foreign key constraint "pensions_owner_id_fkey"') || 
+                                 error.message.includes('User from sub claim in JWT does not exist');
+                
+                if (isOrphaned) {
+                    errorDiv.innerHTML = `
+                        <div style="margin-bottom: 12px; font-weight: bold;">
+                            שגיאת סנכרון: החשבון המחובר לא נמצא במערכת (ייתכן שנמחק מהשרת).
+                        </div>
+                        <div style="margin-bottom: 15px; font-size: 0.85rem; opacity: 0.9;">
+                            יש להתנתק ולהירשם מחדש כדי ליצור מזהה משתמש תקין.
+                        </div>
+                        <button onclick="handleLogout()" class="btn" style="background: #ef4444; color: white; margin-top: 0;">
+                            התנתק והתחל מחדש
+                        </button>
+                    `;
+                } else {
+                    errorDiv.textContent = 'שגיאה בהקמה: ' + error.message;
+                }
+                
                 errorDiv.style.display = 'block';
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'סיום הגדרה וכניסה למערכת';
                 
-                // Keep values in fields so user doesn't lose them
-                // and scroll to error
                 errorDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await Auth.logout();
+            } catch (e) {
+                // Fallback if Auth.logout fails due to the same session issue
+                localStorage.clear();
+                window.location.href = 'login.html';
             }
         }
 
