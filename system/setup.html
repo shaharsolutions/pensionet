@@ -424,8 +424,7 @@
                         pension_id: pensionData.id,
                         full_name: formData.full_name,
                         role: 'manager',
-                        permissions: ['all'],
-                        updated_at: new Date().toISOString()
+                        permissions: ['all']
                     })
                     .eq('user_id', userId);
 
