@@ -700,7 +700,7 @@ function renderAddonsList(definitions) {
   const list = document.getElementById('addonsList');
   if (!container || !list) return;
 
-  const activeAddons = definitions.filter(a => a.is_active !== false);
+  const activeAddons = definitions.filter(a => a.is_active === true);
   if (activeAddons.length === 0) {
     container.style.display = 'none';
     return;

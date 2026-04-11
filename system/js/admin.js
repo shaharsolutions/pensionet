@@ -3068,24 +3068,32 @@ function updatePlanUI() {
   }
 
   let badgeHtml = '';
-  const badgeStyle = 'padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; border: 1px solid transparent;';
+  const baseBadgeStyle = 'padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1.5px solid transparent;';
 
   if (isSystemAdmin) {
-    badgeHtml = `<span style="${badgeStyle} background: #fefce8; color: #854d0e; border-color: #facc15;"><i class="fas fa-shield-alt"></i> Admin</span>`;
+    badgeHtml = `<span style="${baseBadgeStyle} background: #fefce8; color: #854d0e; border-color: #facc15;"><i class="fas fa-shield-alt"></i> SYSTEM ADMIN</span>`;
   } else if (displayPlanId === 'starter') {
-    badgeHtml = `<span style="${badgeStyle} background: #ecfdf5; color: #059669; border-color: #10b981;">Starter</span>`;
+    badgeHtml = `<span style="${baseBadgeStyle} background: #ecfdf5; color: #059669; border-color: #10b981;"><i class="fas fa-seedling"></i> Starter</span>`;
   } else if (displayPlanId === 'pro') {
-    badgeHtml = `<span style="${badgeStyle} background: #eff6ff; color: #2563eb; border-color: #3b82f6;">Pro</span>`;
+    badgeHtml = `<span style="${baseBadgeStyle} background: #eff6ff; color: #2563eb; border-color: #3b82f6;"><i class="fas fa-bolt"></i> PRO</span>`;
   } else if (displayPlanId === 'pro_plus') {
-    badgeHtml = `<span style="${badgeStyle} background: #faf5ff; color: #7c3aed; border-color: #8b5cf6;">Pro Plus</span>`;
+    badgeHtml = `<span style="${baseBadgeStyle} background: #faf5ff; color: #7c3aed; border-color: #8b5cf6;"><i class="fas fa-crown"></i> PRO PLUS</span>`;
   }
 
   if (isFounder && !isSystemAdmin) {
-    badgeHtml += `<span style="${badgeStyle} background: #7c3aed; color: white; border: none; margin-right: 6px;" title="מחיר מופחת לצמיתות"><i class="fas fa-medal"></i> Founder</span>`;
+    badgeHtml += `<span style="${baseBadgeStyle} background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; margin-right: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);" title="מחיר מופחת לצמיתות"><i class="fas fa-medal"></i> Founder</span>`;
   }
 
   containers.forEach(container => {
-    if (container) container.innerHTML = badgeHtml;
+    if (container) {
+      container.innerHTML = badgeHtml;
+      // Add a slight hover effect via JS style
+      const badges = container.querySelectorAll('span');
+      badges.forEach(b => {
+        b.onmouseover = () => b.style.transform = 'translateY(-1px)';
+        b.onmouseout = () => b.style.transform = 'translateY(0)';
+      });
+    }
   });
 }
 
@@ -3629,6 +3637,7 @@ async function loadSettings() {
     const holidayToggle = document.getElementById('settings-show-holidays');
     if (holidayToggle) holidayToggle.checked = true;
     if (typeof Features !== 'undefined') Features.syncUI();
+    updatePlanUI();
     return;
   }
 
@@ -3734,6 +3743,29 @@ async function loadSettings() {
     }
   } catch (err) {
     console.error('Error loading staff list:', err);
+  }
+
+  // Load User Plan (Plan ID and Founder Status)
+  try {
+    const ownerId = pension.owner_id || profile.user_id;
+    const { data: planData, error: planError } = await pensionetSupabase
+      .from('user_plan')
+      .select('plan_id, founder_price_locked')
+      .eq('user_id', ownerId)
+      .maybeSingle();
+
+    if (planError) throw planError;
+    if (planData) {
+      window.currentPlanId = planData.plan_id;
+      window.isFounder = planData.founder_price_locked;
+    } else {
+      window.currentPlanId = 'starter';
+      window.isFounder = false;
+    }
+  } catch (err) {
+    console.warn('Error loading user plan:', err);
+    window.currentPlanId = 'starter';
+    window.isFounder = false;
   }
 
   // Load Addons into global window variable for other components to use
@@ -5985,7 +6017,7 @@ window.addNewAddonRow = function(addonData = null) {
   const name = addonData?.name || '';
   const price = addonData?.price ?? '';
   const isRecommended = addonData?.is_recommended || false;
-  const isActive = addonData?.is_active !== false;
+  const isActive = addonData?.is_active === true;
 
   div.innerHTML = `
     <input type="text" placeholder="שם התוספת (למשל: מקלחת לפני יציאה)" class="addon-name" value="${name}" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
@@ -6016,8 +6048,8 @@ function renderAddonsManager(passedAddons) {
   if (addons.length === 0) {
     // Show some default suggestions if empty
     const defaults = [
-      { name: 'מקלחת לפני יציאה', price: 50, is_recommended: true, is_active: true },
-      { name: 'טיול ארוך', price: 30, is_recommended: false, is_active: true }
+      { name: 'מקלחת לפני יציאה', price: 50, is_recommended: true, is_active: false },
+      { name: 'טיול ארוך', price: 30, is_recommended: false, is_active: false }
     ];
     defaults.forEach(a => window.addNewAddonRow(a));
   } else {
