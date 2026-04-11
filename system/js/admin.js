@@ -1344,7 +1344,7 @@ async function renderMonthlyCalendar(allOrders) {
                 <div class="day-number">${dayCounter}${isMobile ? ` <span style="font-size: 0.8em; font-weight: 400; opacity: 0.7;">${curDayName}</span>` : ''}</div>
                 ${dogsToday.length > 0 ? `<div class="dog-count-label" style="font-size: 0.75em; font-weight: 800; color: var(--primary);">${dogsToday.length} כלבים</div>` : ''}
             </div>
-            ${holidayHebrew ? `<div class="holiday-label" style="font-size: 10px; color: #b45309; background: #fef3c7; padding: 1px 3px; border-radius: 4px; font-weight: 600; text-align: center; margin-bottom: 2px; border: 1px solid #fde68a;">${holidayHebrew}</div>` : ''}
+            ${holidayHebrew ? `<div class="holiday-label" style="font-size: 10px; color: #b45309; background: #fef3c7; padding: 1px 3px; border-radius: 4px; font-weight: 600; text-align: center; margin-top: -8px; margin-bottom: 2px; border: 1px solid #fde68a;">${holidayHebrew}</div>` : ''}
             ${customEventsHTML}
           </div>
           <div class="day-content" style="padding: 0;">${dogsContentHTML}</div>
@@ -5933,7 +5933,7 @@ function generateLocalDemoData() {
             notes: (isEn ? 'Afraid of noises' : 'פחדנית מרעשים') + termsSuffix,
             phone: '0522222222',
             check_in: f(today),
-            check_out: f(new Date(today.getTime() + 5 * dayMs)),
+            check_out: f(new Date(today.getTime() + 4 * dayMs)),
             status: isEn ? 'Approved' : 'מאושר',
             is_arrived: false,
             is_paid: false,
@@ -5971,10 +5971,10 @@ function generateLocalDemoData() {
             neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
             notes: (isEn ? 'Loves balls' : 'אוהב כדורים') + termsSuffix,
             phone: '0543333333',
-            check_in: f(new Date(today.getTime() - 3 * dayMs)),
-            check_out: f(new Date(today.getTime() + 4 * dayMs)),
+            check_in: f(new Date(today.getTime() + 7 * dayMs)),
+            check_out: f(new Date(today.getTime() + 11 * dayMs)),
             status: isEn ? 'Approved' : 'מאושר',
-            is_arrived: true,
+            is_arrived: false,
             is_paid: true,
             price_per_day: 140,
             addons: [
@@ -5993,8 +5993,8 @@ function generateLocalDemoData() {
             neutered: isEn ? 'No' : 'לא',
             notes: (isEn ? 'Energetic puppy' : 'גור אנרגטי') + termsSuffix,
             phone: '0504444444',
-            check_in: f(new Date(today.getTime() + 2 * dayMs)),
-            check_out: f(new Date(today.getTime() + 8 * dayMs)),
+            check_in: f(new Date(today.getTime() + 14 * dayMs)),
+            check_out: f(new Date(today.getTime() + 18 * dayMs)),
             status: isEn ? 'Pending' : 'ממתין',
             is_arrived: false,
             is_paid: false,
@@ -6012,8 +6012,8 @@ function generateLocalDemoData() {
             neutered: isEn ? 'Yes (Spayed)' : 'כן (מעוקרת)',
             notes: (isEn ? 'Old and quiet dog' : 'כלב מבוגר ושקט') + termsSuffix,
             phone: '0525555555',
-            check_in: f(new Date(today.getTime() + 10 * dayMs)),
-            check_out: f(new Date(today.getTime() + 15 * dayMs)),
+            check_in: f(new Date(today.getTime() + 21 * dayMs)),
+            check_out: f(new Date(today.getTime() + 25 * dayMs)),
             status: isEn ? 'Pending' : 'ממתין',
             is_arrived: false,
             is_paid: false,
@@ -6033,8 +6033,8 @@ function generateLocalDemoData() {
             neutered: isEn ? 'Yes (Neutered)' : 'כן (מסורס)',
             notes: (isEn ? 'Loves to play' : 'אוהב לשחק') + termsSuffix,
             phone: '0546666666',
-            check_in: f(new Date(today.getTime() + 15 * dayMs)),
-            check_out: f(new Date(today.getTime() + 20 * dayMs)),
+            check_in: f(new Date(today.getTime() + 28 * dayMs)),
+            check_out: f(new Date(today.getTime() + 32 * dayMs)),
             status: isEn ? 'Approved' : 'מאושר',
             is_arrived: false,
             is_paid: true,

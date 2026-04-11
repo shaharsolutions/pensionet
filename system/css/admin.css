@@ -474,14 +474,14 @@ header h1 {
 }
 
 .calendar-cell-header {
-  height: 60px; /* Reduced height for mobile-first approach, JS will handle specifics */
+  height: 45px; /* More compact header */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: 5px;
+  padding-bottom: 3px;
   border-bottom: 1px dashed #f1f5f9;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 /* Ensure the total number of dogs text doesn't push bars further */
@@ -523,7 +523,7 @@ header h1 {
   font-weight: 800;
   color: #334155;
   text-align: left;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 }
 
 .day-content {
@@ -558,11 +558,11 @@ header h1 {
 /* Unified Dog Labels - Gantt Style (RTL Corrected) */
 .dog-label-unified {
   color: #1e40af;
-  padding: 4px 10px;
+  padding: 2px 8px;
   margin-bottom: 2px;
   border-radius: 4px;
   font-weight: 800;
-  font-size: 11px;
+  font-size: 10px;
   white-space: nowrap;
   overflow: visible;
   cursor: default;
@@ -572,7 +572,7 @@ header h1 {
   position: relative;
   transition: all 0.2s;
   border: 1px solid #93c5fd;
-  height: 28px;
+  height: 22px;
   line-height: 1;
   z-index: 10;
   box-sizing: border-box;
@@ -585,9 +585,9 @@ header h1 {
     text-align: center;
     position: relative;
     z-index: 2;
-    padding: 0 15px; /* Extra padding for continuation arrows */
-    font-size: 10px;
-    line-height: 20px;
+    padding: 0 10px; /* Tighter padding */
+    font-size: 9px;
+    line-height: 18px;
 }
 
 /* RTL Bridging - Sunday to Saturday */
@@ -662,7 +662,7 @@ header h1 {
 /* Hover indicators - REMOVED as color doesn't change anymore */
 
 .dog-label-spacer {
-    height: 28px;
+    height: 22px;
     margin-bottom: 2px;
     visibility: hidden;
 }
