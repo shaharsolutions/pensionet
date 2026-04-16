@@ -4047,7 +4047,7 @@ async function fillWithDemoData() {
     return;
   }
 
-  showConfirm('<i class="fas fa-magic"></i> יצירת נתוני דמו', 'פעולה זו תוסיף כ-150 הזמנות פיקטיביות למערכת לצורך התנסות. <br><br><b>האם להמשיך?</b>', async () => {
+  showConfirm('<i class="fas fa-magic"></i> יצירת נתוני דמו', 'פעולה זו תוסיף כ-20 הזמנות פיקטיביות למערכת לצורך התנסות. <br><br><b>האם להמשיך?</b>', async () => {
     const btn = document.getElementById('fillDemoDataBtn');
     const originalText = btn.innerHTML;
     btn.disabled = true;
