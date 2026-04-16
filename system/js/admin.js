@@ -1662,6 +1662,26 @@ function jumpToDate() {
     }
 }
 
+function goToToday() {
+    window.currentCalendarDate = new Date();
+    
+    // Update the dropdowns if they exist
+    const monthSelect = document.getElementById("calendarMonth");
+    const yearSelect = document.getElementById("calendarYear");
+    if (monthSelect) monthSelect.value = window.currentCalendarDate.getMonth();
+    if (yearSelect) yearSelect.value = window.currentCalendarDate.getFullYear();
+
+    if (window.allOrdersCache.length > 0) {
+        if (window.currentView === "weekly") {
+            renderWeeklyCalendar(window.allOrdersCache);
+        } else {
+            renderMonthlyCalendar(window.allOrdersCache);
+        }
+    } else {
+        loadData();
+    }
+}
+
 function toggleCalendarCollapse(button) {
   const viewContent = document.getElementById("calendarViewContent");
 
