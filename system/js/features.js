@@ -108,7 +108,10 @@ const Features = {
             // TIER 3: Pro Plus
             'staff_management': 3,
             'advanced_reports': 3,
-            'beta_access': 3
+            'beta_access': 3,
+
+            // TIER 2: Pro (Minimum for these features)
+            'order_addons': 2
         };
 
         const requiredTier = tierMapping[featureKey] || 1;

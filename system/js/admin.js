@@ -1910,9 +1910,11 @@ function renderPastOrdersTable() {
     <td data-label="הערות" style="text-align: right; padding: 12px; line-height: 1.6; max-width: 200px; white-space: normal;">
       ${formatOrderNotes(row.notes)}
     </td>
+    ${Features.isEnabled('order_addons') ? `
     <td data-label="תוספות" style="font-size: 12px; max-width: 150px; white-space: normal;">
         ${addons.length > 0 ? addons.map(a => `<div style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; display: inline-block; font-size: 11px;">${a.name} (${a.price}₪)</div>`).join(' ') : '<span style="color:#94a3b8">אין</span>'}
     </td>
+    ` : ''}
     <td data-label="מחיר" class="price-cell" style="vertical-align: top;">
       <div class="price-wrapper">
         <div class="price-controls" ${detailsDisabled ? 'style="opacity:0.3;pointer-events:none;"' : ''}>
@@ -1927,7 +1929,9 @@ function renderPastOrdersTable() {
       </div>
     </td>
     <td data-label="סהכ שהייה" style="font-weight: 600;">${formatNumber(totalPrice)}₪</td>
+    ${Features.isEnabled('order_addons') ? `
     <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
+    ` : ''}
     <td data-label="סטטוס">
       <select data-id="${row.id}" ${statusDisabled} class="status-select ${
         row.status === "מאושר"
@@ -2537,9 +2541,11 @@ function renderFutureOrdersTable() {
       <td data-label="הערות" style="text-align: right; padding: 12px; line-height: 1.6; max-width: 200px; white-space: normal;">
         ${formatOrderNotes(row.notes)}
       </td>
+      ${Features.isEnabled('order_addons') ? `
       <td data-label="תוספות" style="font-size: 12px; max-width: 150px; white-space: normal;">
         ${addons.length > 0 ? addons.map(a => `<div style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 2px; display: inline-block; font-size: 11px;">${a.name} (${a.price}₪)</div>`).join(' ') : '<span style="color:#94a3b8">אין</span>'}
       </td>
+      ` : ''}
       <td data-label="מחיר" class="price-cell" style="vertical-align: top;">
         <div class="price-wrapper">
           <div class="price-controls" ${detailsDisabled ? 'style="opacity:0.3;pointer-events:none;"' : ''}>
@@ -2554,7 +2560,9 @@ function renderFutureOrdersTable() {
         </div>
       </td>
       <td data-label="סהכ שהייה" style="font-weight: 600;">${formatNumber(totalPrice)}₪</td>
+      ${Features.isEnabled('order_addons') ? `
       <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
+      ` : ''}
       <td data-label="סטטוס">
         <div class="status-btn-group ${statusDisabled ? 'disabled' : ''}" data-id="${row.id}" data-status="${row.status}">
           <button type="button" class="status-btn ${row.status === 'ממתין' ? 'active' : ''}" data-value="ממתין" onclick="handleStatusBtnClick('${row.id}', 'ממתין', this)">ממתין</button>

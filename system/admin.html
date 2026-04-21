@@ -336,10 +336,10 @@
                 <th data-i18n="col_size">גודל</th>
                 <th data-i18n="col_neutered">מסורס / מעוקרת</th>
                 <th data-i18n="col_notes">הערות מיוחדות</th>
-                <th data-i18n="col_addons">תוספות</th>
+                <th data-feature="order_addons" data-i18n="col_addons">תוספות</th>
                 <th data-i18n="col_daily_price">מחיר ליום</th>
                 <th data-i18n="col_total_stay">סה"כ לשהייה</th>
-                <th data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
+                <th data-feature="order_addons" data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
                 <th data-i18n="col_status">סטטוס</th>
                 <th class="manager-note-column" data-i18n="col_admin_notes">הערות מנהל</th>
               </tr>
@@ -385,10 +385,10 @@
                   <th data-i18n="col_size">גודל</th>
                   <th data-i18n="col_neutered">מסורס / מעוקרת</th>
                   <th data-i18n="col_notes">הערות מיוחדות</th>
-                  <th data-i18n="col_addons">תוספות</th>
+                  <th data-feature="order_addons" data-i18n="col_addons">תוספות</th>
                   <th data-i18n="col_daily_price">מחיר ליום</th>
                   <th data-i18n="col_total_stay">סה"כ לשהייה</th>
-                  <th data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
+                  <th data-feature="order_addons" data-i18n="col_total_with_addons">סה"כ כולל תוספות</th>
                   <th data-i18n="col_status">סטטוס</th>
                   <th class="manager-note-column" data-i18n="col_admin_notes">הערות מנהל</th>
                 </tr>
@@ -642,7 +642,7 @@
                 </div>
               </div>
 
-              <div class="settings-section" style="grid-column: span 2;" data-manager-section="addons">
+              <div class="settings-section" style="grid-column: span 2;" data-manager-section="addons" data-feature="order_addons">
                 <h4 style="display: flex; align-items: center; justify-content: space-between;">
                   <span><i class="fas fa-plus-circle" style="color: #6366f1;"></i> ניהול תוספות (Add-ons)</span>
                   <button type="button" onclick="showAddonsDemoModal()" class="header-btn" title="תצוגה מקדימה (איך הלקוח יראה את זה)" style="background: #e0e7ff; color: #4338ca; border: none; padding: 6px 12px; font-size: 13px; border-radius: 8px;">

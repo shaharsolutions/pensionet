@@ -54,11 +54,18 @@ async function loadOwnerInfo() {
   try {
     const { data: profiles, error: profileError } = await client
       .from('profiles')
-      .select('phone, pension_id, clients_data')
+      .select('phone, pension_id, clients_data, plan_id, is_founder')
       .eq('user_id', PENSION_OWNER_ID);
     
     if (profileError) throw profileError;
     const profile = profiles && profiles.length > 0 ? profiles[0] : null;
+
+    // Set plan details for Features module
+    if (profile) {
+      window.currentPlanId = profile.plan_id || 'starter';
+      window.isFounder = profile.is_founder || false;
+      console.log(`Owner Plan Resolved: ${window.currentPlanId} (Founder: ${window.isFounder})`);
+    }
     
     // Fetch pension settings explicitly
     let pension = null;
@@ -115,7 +122,13 @@ async function loadOwnerInfo() {
       // Render Add-ons from pension settings
       const addons = pension?.settings?.addons_definitions || profile?.addons_definitions;
       if (addons && addons.length > 0) {
-        renderAddonsList(addons);
+        if (typeof Features !== 'undefined' && Features.isEnabled('order_addons')) {
+          renderAddonsList(addons);
+        } else {
+          console.log('Add-ons feature is disabled for this plan.');
+          const addonsSection = document.getElementById('addonsSection');
+          if (addonsSection) addonsSection.style.display = 'none';
+        }
       }
     } else {
       // Profile NOT found at all
