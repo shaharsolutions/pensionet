@@ -1951,6 +1951,14 @@ function renderPastOrdersTable() {
         }>בוטל</option>
       </select>
     </td>
+    <td data-label="שולם">
+      <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
+              data-id="${row.id}" data-paid="${row.is_paid || false}" 
+              onclick="togglePaymentStatus(this)">
+        <i class="fas ${row.is_paid ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        <span>${row.is_paid ? (window.i18n ? window.i18n.getTranslation('status_paid') : 'שולם') : (window.i18n ? window.i18n.getTranslation('status_not_paid') : 'לא שולם')}</span>
+      </button>
+    </td>
     <td data-label="ניהול" class="manager-note-column">
       <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
          <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
@@ -2454,6 +2462,31 @@ async function handleStatusBtnClick(orderId, newStatus, btn) {
     if (order) order.status = newStatus;
 }
 
+function togglePaymentStatus(btn) {
+    if (btn.classList.contains('disabled')) return;
+    
+    const isPaid = btn.dataset.paid === 'true';
+    const newPaid = !isPaid;
+    
+    btn.dataset.paid = String(newPaid);
+    btn.classList.toggle('paid', newPaid);
+    btn.classList.toggle('not-paid', !newPaid);
+    
+    const icon = btn.querySelector('i');
+    icon.classList.toggle('fa-check-circle', newPaid);
+    icon.classList.toggle('fa-times-circle', !newPaid);
+    
+    const label = btn.querySelector('span');
+    const paidText = window.i18n ? window.i18n.getTranslation('status_paid') : 'שולם';
+    const notPaidText = window.i18n ? window.i18n.getTranslation('status_not_paid') : 'לא שולם';
+    label.textContent = newPaid ? paidText : notPaidText;
+    
+    // Update cache
+    const orderId = btn.dataset.id;
+    const order = (window.allOrdersCache || []).find(o => String(o.id) === String(orderId));
+    if (order) order.is_paid = newPaid;
+}
+
 function closeCancelReasonModal() {
     const modal = document.getElementById('cancelReasonModal');
     if (modal) modal.style.display = 'none';
@@ -2570,6 +2603,14 @@ function renderFutureOrdersTable() {
           <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
         </div>
       </td>
+      <td data-label="שולם">
+        <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
+                data-id="${row.id}" data-paid="${row.is_paid || false}" 
+                onclick="togglePaymentStatus(this)">
+          <i class="fas ${row.is_paid ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+          <span>${row.is_paid ? (window.i18n ? window.i18n.getTranslation('status_paid') : 'שולם') : (window.i18n ? window.i18n.getTranslation('status_not_paid') : 'לא שולם')}</span>
+        </button>
+      </td>
       <td data-label="ניהול" class="manager-note-column">
         <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
           <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
@@ -2671,6 +2712,7 @@ document
         const status = statusBtnGroup ? statusBtnGroup.dataset.status : (select?.value || "");
         const adminNote = row.querySelector("textarea.admin-note")?.value;
         const pricePerDay = row.querySelector(".price-input")?.value;
+        const isPaid = row.querySelector(".payment-toggle")?.dataset?.paid === "true";
         const daysInput = row.querySelector(".days-input");
 
         const checkInInput = row.querySelector(
@@ -2685,6 +2727,7 @@ document
         if (status) updateData.status = status;
         if (adminNote !== undefined) updateData.admin_note = adminNote;
         if (pricePerDay) updateData.price_per_day = parseInt(pricePerDay);
+        updateData.is_paid = isPaid;
 
         if (checkInInput && checkInInput.value) {
           updateData.check_in = checkInInput.value;
