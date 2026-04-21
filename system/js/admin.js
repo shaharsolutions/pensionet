@@ -2265,7 +2265,7 @@ async function loadData() {
 
     const { data, error } = await pensionetSupabase
       .from("orders")
-      .select("id, dog_name, owner_name, check_in, check_out, status, created_at, phone, price_per_day, is_arrived, is_departed, admin_note, dog_photo, dog_breed, dog_age, neutered, addons")
+      .select("id, dog_name, owner_name, check_in, check_out, status, created_at, phone, price_per_day, is_arrived, is_departed, admin_note, dog_photo, dog_breed, dog_age, neutered, addons, is_paid")
       .in("user_id", staffIds) // Fetch orders for all pension members
       .order("check_out", { ascending: true });
 
@@ -2462,7 +2462,7 @@ async function handleStatusBtnClick(orderId, newStatus, btn) {
     if (order) order.status = newStatus;
 }
 
-function togglePaymentStatus(btn) {
+async function togglePaymentStatus(btn) {
     if (btn.classList.contains('disabled')) return;
     
     const isPaid = btn.dataset.paid === 'true';
@@ -2704,15 +2704,21 @@ document
       );
 
       for (const row of rows) {
-        const id = row.querySelector("select, .price-input")?.dataset?.id;
-        if (!id) continue;
+        const idElem = row.querySelector("[data-id]");
+        const id = idElem?.dataset?.id;
+        
+        if (!id) {
+          console.warn("Row missing data-id:", row);
+          continue;
+        }
 
         const select = row.querySelector("select");
         const statusBtnGroup = row.querySelector(".status-btn-group");
         const status = statusBtnGroup ? statusBtnGroup.dataset.status : (select?.value || "");
         const adminNote = row.querySelector("textarea.admin-note")?.value;
         const pricePerDay = row.querySelector(".price-input")?.value;
-        const isPaid = row.querySelector(".payment-toggle")?.dataset?.paid === "true";
+        const paymentToggle = row.querySelector(".payment-toggle");
+        const isPaid = paymentToggle?.dataset?.paid === "true";
         const daysInput = row.querySelector(".days-input");
 
         const checkInInput = row.querySelector(
@@ -2727,7 +2733,10 @@ document
         if (status) updateData.status = status;
         if (adminNote !== undefined) updateData.admin_note = adminNote;
         if (pricePerDay) updateData.price_per_day = parseInt(pricePerDay);
-        updateData.is_paid = isPaid;
+        
+        if (paymentToggle) {
+          updateData.is_paid = isPaid;
+        }
 
         if (checkInInput && checkInInput.value) {
           updateData.check_in = checkInInput.value;
@@ -2747,13 +2756,16 @@ document
         }
 
         if (Object.keys(updateData).length > 0) {
+          const finalId = /^\d+$/.test(id) ? parseInt(id, 10) : id;
+          console.log(`[SaveButton] Updating order ${finalId}:`, updateData);
+          
           const { error } = await pensionetSupabase
             .from("orders")
             .update(updateData)
-            .eq("id", id);
+            .eq("id", finalId);
 
           if (error) {
-            console.error("Error updating row:", id, error);
+            console.error("Error updating row:", finalId, error);
             throw error;
           }
           
