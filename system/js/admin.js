@@ -1722,18 +1722,18 @@ function switchCalendarView(newView) {
   const nextBtn = document.getElementById("nextMonth");
 
   if (newView === "calendar") {
-    const titleText = window.i18n ? window.i18n.getTranslation('ongoing_schedule_title') : "לוח זמנים חודשי (נוכחות כלבים)";
-    title.textContent = titleText;
-    const prevText = window.i18n ? window.i18n.getTranslation('ongoing_btn_prev_month') : "חודש קודם";
-    const nextText = window.i18n ? window.i18n.getTranslation('ongoing_btn_next_month') : "חודש הבא";
-    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevText}`;
-    if (nextBtn) nextBtn.innerHTML = `${nextText} &gt;`;
+    const prevText = window.i18n ? window.i18n.getTranslation('ongoing_schedule_title') : "לוח זמנים חודשי (נוכחות כלבים)";
+    title.textContent = prevText;
+    const prevLabel = window.i18n ? window.i18n.getTranslation('ongoing_btn_prev_month') : "חודש קודם";
+    const nextLabel = window.i18n ? window.i18n.getTranslation('ongoing_btn_next_month') : "חודש הבא";
+    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevLabel}`;
+    if (nextBtn) nextBtn.innerHTML = `${nextLabel} &gt;`;
     renderMonthlyCalendar(window.allOrdersCache);
   } else if (newView === "weekly") {
-    const prevText = window.i18n ? window.i18n.getTranslation('btn_prev_week') : "שבוע קודם";
-    const nextText = window.i18n ? window.i18n.getTranslation('btn_next_week') : "שבוע הבא";
-    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevText}`;
-    if (nextBtn) nextBtn.innerHTML = `${nextText} &gt;`;
+    const prevLabel = window.i18n ? window.i18n.getTranslation('btn_prev_week') : "שבוע קודם";
+    const nextLabel = window.i18n ? window.i18n.getTranslation('btn_next_week') : "שבוע הבא";
+    if (prevBtn) prevBtn.innerHTML = `&lt; ${prevLabel}`;
+    if (nextBtn) nextBtn.innerHTML = `${nextLabel} &gt;`;
     renderWeeklyCalendar(window.allOrdersCache);
   } else if (newView === "dogs") {
     calendarContent.style.display = "none";
