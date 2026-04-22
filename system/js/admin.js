@@ -180,8 +180,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     // --- Impersonation Mode ---
     const impersonateUserName = sessionStorage.getItem('pensionet_impersonate_user_name');
-    const ADMIN_EMAILS = ['shaharsolutions@gmail.com'];
-    const isSystemAdmin = ADMIN_EMAILS.includes(session.user.email);
+    const isSystemAdmin = Auth.isAdmin(session);
     
     if (impersonateUserId && isSystemAdmin) {
       // Override the user.id in the session to load impersonated user's data
@@ -3137,11 +3136,8 @@ function updatePlanUI() {
   ];
   
   const planId = window.currentPlanId;
-  const userEmail = window.currentUserSession?.user?.email || 
-                    window.currentUserSession?.email || 
-                    (typeof Auth !== 'undefined' && Auth.getSession()?.user?.email);
-  const ADMIN_EMAILS = ['shaharsolutions@gmail.com', 'elina1324@gmail.com'];
-  const isSystemAdmin = ADMIN_EMAILS.includes(userEmail) && !window.isImpersonating;
+  const session = window.currentUserSession;
+  const isSystemAdmin = Auth.isAdmin(session) && !window.isImpersonating;
   
   if (!planId && !isSystemAdmin) return;
 

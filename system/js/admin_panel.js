@@ -137,7 +137,13 @@ async function updateSessionActivity() {
 // ============================================
 
 function isAdminUser(session) {
-    return session && session.user && ADMIN_EMAILS.includes(session.user.email);
+    // 1. Check hardcoded primary admin (safety fallback)
+    if (session && session.user && ADMIN_EMAILS.includes(session.user.email)) return true;
+    
+    // 2. Check profile role if loaded
+    if (window.currentUserProfile && window.currentUserProfile.role === 'admin') return true;
+
+    return false;
 }
 
 async function checkAdminAccess() {
@@ -282,7 +288,7 @@ async function loadAllOrders() {
 async function loadAllProfiles() {
     const { data, error } = await supabaseClient
         .from('profiles')
-        .select('user_id, email, business_name, full_name, last_seen_announcement_id, seen_announcement_at');
+        .select('user_id, email, business_name, full_name, last_seen_announcement_id, seen_announcement_at, role');
 
     if (error) {
         console.error('Error loading profiles:', error);
@@ -802,8 +808,8 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
         return acc;
     }, {});
 
-    const renderPlanBadge = (planData, userEmail = null) => {
-        const isSystemAdmin = ADMIN_EMAILS.includes(userEmail);
+    const renderPlanBadge = (planData, userEmail = null, role = null) => {
+        const isSystemAdmin = ADMIN_EMAILS.includes(userEmail) || role === 'admin';
         if (isSystemAdmin) {
             return `<span class="admin-badge" style="background: #fefce8; color: #854d0e; border: 1px solid #facc15;"><i class="fas fa-shield-alt"></i> Admin</span>`;
         }
@@ -859,7 +865,8 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
             loginCount: 0,
             lastLogin: null,
             lastSeenAnnouncementId: p.last_seen_announcement_id || null,
-            seenAnnouncementAt: p.seen_announcement_at || null
+            seenAnnouncementAt: p.seen_announcement_at || null,
+            role: p.role || 'manager'
         };
     });
 
@@ -879,7 +886,8 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
                 loginCount: 0,
                 lastLogin: null,
                 lastSeenAnnouncementId: null,
-                seenAnnouncementAt: null
+                seenAnnouncementAt: null,
+                role: 'manager'
             };
         }
         const user = usersMap[s.user_id];
@@ -934,7 +942,7 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
         return `
             <tr class="clickable-row ${isSelected ? 'active-row' : ''}" onclick="filterByUser('${user.user_id}')">
                 <td class="email-cell">${displayEmail}</td>
-                <td>${user.email === ADMIN_EMAIL ? '<span style="color: #6366f1; font-weight: 700;"><i class="fas fa-user-shield"></i> מנהל מערכת</span>' : (user.businessName || user.fullName || '---')}</td>
+                <td>${(user.email === ADMIN_EMAIL || user.role === 'admin') ? '<span style="color: #6366f1; font-weight: 700;"><i class="fas fa-user-shield"></i> מנהל מערכת</span>' : (user.businessName || user.fullName || '---')}</td>
                 <td><strong>${user.totalOrders}</strong></td>
                 <td><strong>${user.loginCount}</strong></td>
                 <td>${hours} שעות</td>
@@ -943,7 +951,7 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
                     ${isActive ? '<span class="admin-badge badge-active" style="margin-right: 8px;"><i class="fas fa-circle" style="font-size: 6px;"></i> פעיל</span>' : ''}
                 </td>
                 <td onclick="event.stopPropagation()">
-                    ${renderPlanBadge(plansMap[user.user_id], user.email)}
+                    ${renderPlanBadge(plansMap[user.user_id], user.email, user.role)}
                 </td>
                 <td style="font-size: 11px;" onclick="event.stopPropagation()">
                     ${user.seenAnnouncementAt ? `
@@ -959,7 +967,7 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
                     <button class="impersonate-btn" onclick="startImpersonation('${user.user_id}', '${(user.businessName || user.fullName || user.email || '').replace(/'/g, "\\'")}')" title="צפה כמשתמש זה">
                         <i class="fas fa-eye"></i> צפה
                     </button>
-                    <button class="impersonate-btn" onclick="openPlanModal('${user.user_id}', '${displayEmail.replace(/'/g, "\\'")}', '${plansMap[user.user_id]?.id || ''}', ${plansMap[user.user_id]?.founder || false})" style="background: #faf5ff; color: #7c3aed; border-color: #d8b4fe; margin-right: 4px;" title="שינוי חבילה">
+                    <button class="impersonate-btn" onclick="openPlanModal('${user.user_id}', '${displayEmail.replace(/'/g, "\\'")}', '${plansMap[user.user_id]?.id || ''}', ${plansMap[user.user_id]?.founder || false}, '${user.role}')" style="background: #faf5ff; color: #7c3aed; border-color: #d8b4fe; margin-right: 4px;" title="שינוי חבילה">
                         <i class="fas fa-crown"></i> חבילה
                     </button>
                     <button class="impersonate-btn" onclick="openFeatureOverrides('${user.user_id}', '${displayEmail.replace(/'/g, "\\'")}')" style="background:#f1f5f9; color:#475569; border-color:#e2e8f0; margin-right:4px;" title="ניהול החרגות">
@@ -980,17 +988,21 @@ function closePlanModal() {
     if (modal) modal.style.display = 'none';
 }
 
-function openPlanModal(userId, userEmail, currentPlan, isFounder) {
+function openPlanModal(userId, userEmail, currentPlan, isFounder, role) {
     document.getElementById('planModalUserEmail').textContent = userEmail;
     document.getElementById('planModalSelect').value = currentPlan;
     document.getElementById('founderLockCheck').checked = isFounder;
+    
+    const adminCheck = document.getElementById('systemAdminCheck');
+    if (adminCheck) adminCheck.checked = (role === 'admin');
     
     // Set save button action
     const saveBtn = document.getElementById('savePlanBtn');
     saveBtn.onclick = () => {
         const newPlan = document.getElementById('planModalSelect').value;
         const isFounderLocked = document.getElementById('founderLockCheck').checked;
-        updateUserPlan(userId, newPlan, isFounderLocked);
+        const isAdmin = adminCheck ? adminCheck.checked : false;
+        updateUserPlan(userId, newPlan, isFounderLocked, isAdmin);
         closePlanModal();
     };
 
@@ -998,19 +1010,20 @@ function openPlanModal(userId, userEmail, currentPlan, isFounder) {
     if (modal) modal.style.display = 'flex';
 }
 
-async function updateUserPlan(userId, planId, isFounderLocked = false) {
+async function updateUserPlan(userId, planId, isFounderLocked = false, isAdmin = false) {
     try {
+        // 1. Update Plan
         if (!planId) {
             // Remove plan assignment if none selected
-            const { error } = await supabaseClient
+            const { error: planError } = await supabaseClient
                 .from('user_plan')
                 .delete()
                 .eq('user_id', userId);
             
-            if (error) throw error;
+            if (planError) throw planError;
         } else {
             // Upsert the user/plan mapping
-            const { error } = await supabaseClient
+            const { error: planError } = await supabaseClient
                 .from('user_plan')
                 .upsert({ 
                     user_id: userId, 
@@ -1019,8 +1032,17 @@ async function updateUserPlan(userId, planId, isFounderLocked = false) {
                     updated_at: new Date().toISOString()
                 });
             
-            if (error) throw error;
+            if (planError) throw planError;
         }
+
+        // 2. Update Role (Admin)
+        const newRole = isAdmin ? 'admin' : 'manager';
+        const { error: roleError } = await supabaseClient
+            .from('profiles')
+            .update({ role: newRole })
+            .eq('user_id', userId);
+
+        if (roleError) throw roleError;
         
         if (typeof showToast === 'function') showToast('החבילה עודכנה בהצלחה', 'success');
         

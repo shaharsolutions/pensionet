@@ -125,7 +125,9 @@ const Auth = {
 
   isAdmin(session) {
     const ADMIN_EMAILS = ['shaharsolutions@gmail.com'];
-    return session && session.user && ADMIN_EMAILS.includes(session.user.email);
+    if (session && session.user && ADMIN_EMAILS.includes(session.user.email)) return true;
+    if (window.currentUserProfile && window.currentUserProfile.role === 'admin') return true;
+    return false;
   },
 
   hasPermission(permission) {

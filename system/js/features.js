@@ -68,10 +68,13 @@ const Features = {
 
     isEnabled(featureKey) {
         // 1. System administrators have full access
+        if (typeof Auth !== 'undefined' && Auth.isAdmin(window.currentUserSession)) return true;
+        
         const userEmail = window.currentUserSession?.user?.email || 
                           window.currentUserSession?.email;
         const ADMIN_EMAILS = ['shaharsolutions@gmail.com'];
         if (ADMIN_EMAILS.includes(userEmail)) return true;
+        if (window.currentUserProfile && window.currentUserProfile.role === 'admin') return true;
 
         // 2. Resolve the effective plan (accounting for the Founder שדרוג)
         const rawPlanId = window.currentPlanId || 'starter';
