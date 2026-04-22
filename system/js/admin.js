@@ -1951,6 +1951,7 @@ function renderPastOrdersTable() {
         }>בוטל</option>
       </select>
     </td>
+    ${Features.isEnabled('order_payment_status') ? `
     <td data-label="שולם">
       <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
               data-id="${row.id}" data-paid="${row.is_paid || false}" 
@@ -1959,6 +1960,7 @@ function renderPastOrdersTable() {
         <span>${row.is_paid ? (window.i18n ? window.i18n.getTranslation('status_paid') : 'שולם') : (window.i18n ? window.i18n.getTranslation('status_not_paid') : 'לא שולם')}</span>
       </button>
     </td>
+    ` : ''}
     <td data-label="ניהול" class="manager-note-column">
       <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
          <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})
@@ -2603,6 +2605,7 @@ function renderFutureOrdersTable() {
           <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
         </div>
       </td>
+      ${Features.isEnabled('order_payment_status') ? `
       <td data-label="שולם">
         <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
                 data-id="${row.id}" data-paid="${row.is_paid || false}" 
@@ -2611,6 +2614,7 @@ function renderFutureOrdersTable() {
           <span>${row.is_paid ? (window.i18n ? window.i18n.getTranslation('status_paid') : 'שולם') : (window.i18n ? window.i18n.getTranslation('status_not_paid') : 'לא שולם')}</span>
         </button>
       </td>
+      ` : ''}
       <td data-label="ניהול" class="manager-note-column">
         <button type="button" class="view-notes-btn" onclick="openNotesModal('${row.id}', '${row.dog_name.replace(/'/g, "\\'")}', '${row.owner_name.replace(/'/g, "\\'")}')">
           <i class="fas fa-comments"></i> הערות (${safeParseNotes(row.admin_note).length})

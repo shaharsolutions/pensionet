@@ -111,7 +111,8 @@ const Features = {
             'beta_access': 3,
 
             // TIER 2: Pro (Minimum for these features)
-            'order_addons': 2
+            'order_addons': 2,
+            'order_payment_status': 2
         };
 
         const requiredTier = tierMapping[featureKey] || 1;
