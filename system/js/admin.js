@@ -3145,10 +3145,6 @@ function updatePlanUI() {
 
   // Logic consistent with admin_panel.js: Founders get +1 feature tier
   let displayPlanId = planId;
-  if (isFounder) {
-    if (planId === 'starter') displayPlanId = 'pro';
-    else if (planId === 'pro') displayPlanId = 'pro_plus';
-  }
 
   let badgeHtml = '';
   const baseBadgeStyle = 'padding: 5px 14px; border-radius: 12px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1.5px solid transparent;';

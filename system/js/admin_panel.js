@@ -819,10 +819,6 @@ function renderUsersTable(sessions, orders, profiles, userPlans = []) {
         
         // Sliding scale for Founders: Display the FEATURE tier, not the PAYMENT tier
         let displayPlanId = planId;
-        if (isFounder) {
-            if (planId === 'starter') displayPlanId = 'pro';
-            else if (planId === 'pro') displayPlanId = 'pro_plus';
-        }
 
         let badgeHtml = '';
 

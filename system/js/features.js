@@ -85,10 +85,6 @@ const Features = {
         if (planId === 'pro') effectiveTier = 2;
         if (planId === 'pro_plus') effectiveTier = 3;
 
-        // Founder Bonus: +1 Tier
-        if (isFounder) {
-            effectiveTier = Math.min(3, effectiveTier + 1);
-        }
 
         const VERSION = "1.0.55";
         console.log(`[Features v${VERSION}] Checking: ${featureKey} | Plan: ${planId} | Effective Tier: ${effectiveTier}`);
