@@ -1950,7 +1950,7 @@ function renderPastOrdersTable() {
         }>בוטל</option>
       </select>
     </td>
-    ${Features.isEnabled('order_payment_status') ? `
+    ${(Features.isEnabled('order_payment_status') && (window.currentPension?.settings?.show_paid_column !== false)) ? `
     <td data-label="שולם">
       <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
               data-id="${row.id}" data-paid="${row.is_paid || false}" 
@@ -2604,7 +2604,7 @@ function renderFutureOrdersTable() {
           <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
         </div>
       </td>
-      ${Features.isEnabled('order_payment_status') ? `
+      ${(Features.isEnabled('order_payment_status') && (window.currentPension?.settings?.show_paid_column !== false)) ? `
       <td data-label="שולם">
         <button type="button" class="payment-toggle ${row.is_paid ? 'paid' : 'not-paid'} ${detailsDisabled ? 'disabled' : ''}" 
                 data-id="${row.id}" data-paid="${row.is_paid || false}" 
@@ -3859,6 +3859,18 @@ async function loadSettings() {
     showHolidaysInput.checked = (pension.settings?.show_holidays ?? showHolidaysDefault);
   }
 
+  const showPaidColumnInput = document.getElementById('settings-show-paid-column');
+  if (showPaidColumnInput) {
+    const showPaid = (pension.settings?.show_paid_column ?? true);
+    showPaidColumnInput.checked = showPaid;
+    
+    if (!showPaid) {
+      document.body.classList.add('hide-paid-column');
+    } else {
+      document.body.classList.remove('hide-paid-column');
+    }
+  }
+
   updatePlanUI();
   updateModeUI();
   
@@ -3888,7 +3900,8 @@ document.getElementById('saveSettingsBtn')?.addEventListener('click', async func
     settings: {
         ...(pension.settings || {}),
         addons_definitions: typeof getAddonsFromUI === 'function' ? getAddonsFromUI() : [],
-        show_holidays: document.getElementById('settings-show-holidays')?.checked
+        show_holidays: document.getElementById('settings-show-holidays')?.checked,
+        show_paid_column: document.getElementById('settings-show-paid-column')?.checked
     }
   };
 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walkie - ניהול דוגווקרים</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="dog"></i>
+                <span>Walkie</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li class="nav-link active" onclick="window.app.switchTab('dashboard')">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>לוח בקרה</span>
+                    </li>
+                    <li class="nav-link" onclick="window.app.switchTab('schedule')">
+                        <i data-lucide="calendar"></i>
+                        <span>לו"ז טיולים</span>
+                    </li>
+                    <li class="nav-link" onclick="window.app.switchTab('dogs')">
+                        <i data-lucide="users"></i>
+                        <span>כלבים ולקוחות</span>
+                    </li>
+                    <li class="nav-link" onclick="window.app.switchTab('reports')">
+                        <i data-lucide="file-text"></i>
+                        <span>דיווחים ויומן</span>
+                    </li>
+                    <li class="nav-link" onclick="window.app.switchTab('settings')">
+                        <i data-lucide="settings"></i>
+                        <span>הגדרות</span>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="app-root">
+            <!-- Content will be injected here by app.js -->
+            <div class="loader">טוען...</div>
+        </main>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content" id="modal-body">
+            <!-- Content injected here -->
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+    <script>
+        // Global error handler for Supabase
+        window.addEventListener('unhandledrejection', event => {
+            console.error('Database Error:', event.reason);
+            // Optionally show a toast/alert if it's a Supabase error
+            if (event.reason && event.reason.message && event.reason.message.includes('relation "walkie_')) {
+                console.warn('Tables might not exist. Please run sql/setup.sql in Supabase Dashboard.');
+            }
+        });
+    </script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
