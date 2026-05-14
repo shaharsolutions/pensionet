@@ -1932,23 +1932,11 @@ function renderPastOrdersTable() {
     <td data-label="סהכ כולל" style="font-weight: 800; color: #6366f1; font-size: 16px;">${formatNumber(grandTotal)}₪</td>
     ` : ''}
     <td data-label="סטטוס">
-      <select data-id="${row.id}" ${statusDisabled} class="status-select ${
-        row.status === "מאושר"
-          ? "status-approved"
-          : row.status === "בוטל"
-          ? "status-cancelled"
-          : ""
-      }">
-        <option value="ממתין" ${
-          row.status === "ממתין" ? "selected" : ""
-        }>ממתין</option>
-        <option value="מאושר" ${
-          row.status === "מאושר" ? "selected" : ""
-        }>מאושר</option>
-        <option value="בוטל" ${
-          row.status === "בוטל" ? "selected" : ""
-        }>בוטל</option>
-      </select>
+      <div class="status-btn-group ${statusDisabled ? 'disabled' : ''}" data-id="${row.id}" data-status="${row.status}">
+        <button type="button" class="status-btn ${row.status === 'ממתין' ? 'active' : ''}" data-value="ממתין" onclick="handleStatusBtnClick('${row.id}', 'ממתין', this)">ממתין</button>
+        <button type="button" class="status-btn ${row.status === 'מאושר' ? 'active' : ''}" data-value="מאושר" onclick="handleStatusBtnClick('${row.id}', 'מאושר', this)">מאושר</button>
+        <button type="button" class="status-btn ${row.status === 'בוטל' ? 'active' : ''}" data-value="בוטל" onclick="handleStatusBtnClick('${row.id}', 'בוטל', this)">בוטל</button>
+      </div>
     </td>
     ${(Features.isEnabled('order_payment_status') && (window.currentPension?.settings?.show_paid_column !== false)) ? `
     <td data-label="שולם">
@@ -2005,14 +1993,7 @@ function renderPastOrdersTable() {
       });
     });
 
-    // Handle status color classes
-    document.querySelectorAll('#pastOrdersTable .status-select').forEach(select => {
-      select.addEventListener('change', function() {
-        this.classList.remove('status-approved', 'status-cancelled');
-        if (this.value === 'מאושר') this.classList.add('status-approved');
-        if (this.value === 'בוטל') this.classList.add('status-cancelled');
-      });
-    });
+
 
     if (typeof Features !== 'undefined') Features.syncUI();
 }
